@@ -73,16 +73,3 @@ Starting from your home directory,
 6. `make -C build -j 10`
 
 
-#### Getting the data
-
-###### Preprocessed Natural Questions (NQ) data
-
-
-###### EfficientQA subset of Wikipedia
-
-## Running Experiments
-
-
-/home/azureuser/miniconda3/envs/DPR/include/python3.8
-
-https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html

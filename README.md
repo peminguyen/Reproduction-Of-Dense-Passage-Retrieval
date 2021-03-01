@@ -39,5 +39,19 @@ Starting from your home directory,
 
 5. `conda activate DPR`
 
+#### Getting the data
 
+##### Preprocessed Natural Questions (NQ) data
+
+TODO
+
+##### EfficientQA subset of Wikipedia
+
+TODO
+
+## Running Experiments
+
+TODO
+
+https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html
 

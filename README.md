@@ -21,7 +21,13 @@ This should be cloned in the home directory of your VM.
 1. `git clone https://github.com/peminguyen/CSE517-final-project.git`
 	* We need environment.yml for setting up conda.
 
-TODO: Get the BERT base uncased file downloaded
+2. `cd CSE517-final-project`
+
+3. `mkdir bert_stuff; cd bert_stuff`
+ 
+4. `wget https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz`
+
+5. `tar -xzvf bert-base-uncased.tar.gz`
 
 ### Setting up conda
 

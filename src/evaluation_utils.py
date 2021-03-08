@@ -28,19 +28,14 @@ def evaluate_wiki(query_embeddings, passage_embeddings, query_df, wiki_df, k=100
     for i in range(query_embeddings.shape[0]):
         psg_texts = wiki_df['passage'][results[i, :]]
         answers = query_df['answers']
-        # normalize psgs
+        # TODO: normalize psgs
         # normalize answers
         # is_correct = any([answer in passage for answer in normalized_answers for passage in normalized_passages])
 
-
+'''
 np.random.seed(1234)
 psgs = np.random.random((1000, 100)).astype('float32')
 queries = np.random.random((15, 100)).astype('float32')
-# psgs = np.arange(100).reshape(10, 10).astype('float32')
-# norms_psgs = np.linalg.norm(psgs, axis=1)
-# norms_queries = np.linalg.norm(queries, axis=1)
-# psgs = psgs / np.expand_dims(norms_psgs, axis=1)
-# queries = queries / np.expand_dims(norms_queries, axis=1)
 serialize_vectors("psgs.h5", psgs);
 serialize_vectors("queries.h5", queries);
 d_psgs = deserialize_vectors("psgs.h5");
@@ -48,3 +43,4 @@ d_queries = deserialize_vectors("queries.h5")
 print(np.array_equal(psgs, d_psgs))
 print(np.array_equal(queries, d_queries))
 evaluate_wiki(queries, psgs)
+'''

@@ -10,7 +10,6 @@ class NQDataset(torch.utils.data.Dataset):
     def __init__(self, path):
 
         self.df = pd.read_json(path)
-        self.keys = self.df.keys()
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     def __len__(self):

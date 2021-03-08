@@ -28,9 +28,8 @@ class WikiDataset(torch.utils.data.Dataset):
 
 
 
-# loader =  WikiDataset(r"test.tsv")
-# for x in loader:
-#         print(x.shape, "\n")
-#     print(x)
-#     break
+loader =  WikiDataset(r"test.tsv")
+for x in loader:
+    print(x.shape, "\n")
+    print(x)
 

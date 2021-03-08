@@ -26,9 +26,11 @@ class WikiDataset(torch.utils.data.Dataset):
 
 
 
+"""
+dataset = WikiDataset(r"test.tsv")
+loader = torch.utils.data.DataLoader(dataset, batch_size=2)
 
-loader =  WikiDataset(r"test.tsv")
 for x in loader:
     print(x.shape, "\n")
     print(x)
-
+"""

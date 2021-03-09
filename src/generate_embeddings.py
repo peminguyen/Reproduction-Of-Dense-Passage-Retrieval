@@ -6,11 +6,13 @@ import torch.optim as optim
 import argparse
 import torch.multiprocessing as mp
 import torch.distributed as dist
+import numpy as np
 
 from model import *
 from wiki_data_loader import *
 from qa_pair_data_loader import *
 from evaluation_utils import *
+from utils import *
 
 def main():
     parser = argparse.ArgumentParser()
@@ -19,6 +21,7 @@ def main():
     parser.add_argument("--wiki", help="path to wikipedia DB")
     parser.add_argument("--qa_pair", help="path to qa pair csv")
     parser.add_argument("--world_size", help="world size")
+    parser.add_argument("--experiment", help="used to write h5 files")
     args = parser.parse_args()
 
     os.environ['MASTER_ADDR'] = '127.0.0.1'
@@ -53,8 +56,13 @@ def create_embeddings(gpu, args):
     qa_pair_loader = torch.utils.data.DataLoader(qa_pair_set, batch_size=int(args.b), pin_memory=True,
                                                  sampler=qa_pair_sampler)
 
-    psg_embeddings = np.zeros((0, 768))
-    ques_embeddings = np.zeros((0, 768))
+    # concatenate the indices:
+    # index 0: *global* index of the passage in the wikipedia database
+    # index 1-768: the BERT embedding of the passage's CLS token
+    psg_embeddings = np.zeros((0, 769), dtype=np.float32)
+
+    # We do the same thing for the questions
+    ques_embeddings = np.zeros((0, 769), dtype=np.float32)
 
     net = BERT_QA().cuda(gpu)
     net = torch.load(args.model)
@@ -62,29 +70,38 @@ def create_embeddings(gpu, args):
     model.eval()
 
     print("==========embedding the passages==========")
-    for batch_idx, (passage) in enumerate(wiki_loader):
+    for batch_idx, (passage, psg_indices) in enumerate(wiki_loader):
         with torch.no_grad():
             passage = passage.long().cuda(non_blocking=True)
 
             _, p_emb = model(None, passage)
-
+            
+            np_psg_indices = np.expand_dims(psg_indices.numpy(), axis=1)
             p_emb = p_emb.detach().cpu().numpy()
+            p_emb = np.concatenate((np_psg_indices, p_emb), axis=1)
             psg_embeddings = np.concatenate((psg_embeddings, p_emb), axis=0)
 
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} passages')
 
     print("==========embedding the questions==========")
-    for batch_idx, (ques, _) in enumerate(qa_pair_loader):
+    for batch_idx, (ques, '''_,''' ques_indices) in enumerate(qa_pair_loader):
         with torch.no_grad():
             ques = ques.long().cuda(non_blocking=True)
 
             q_emb, _ = model(ques, None)
+
+            np_ques_indices = np.expand_dims(ques_indices.numpy(), axis=1)
+
+            q_emb = q_emb.detach().cpu().numpy()
+            q_emb = np.concatenate((np_ques_indices, q_emb), axis=1)
             ques_embeddings = np.concatenate((ques_embeddings, q_emb), axis=0)
 
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} questions')
 
+    serialize_matrix(psg_embeddings, f"./embeddings/{args.experiment}-psg-{rank}.h5")
+    serialize_matrix(ques_embeddings, f"./embeddings/{args.experiment}-ques-{rank}.h5")
 
 if __name__ == '__main__':
     main()

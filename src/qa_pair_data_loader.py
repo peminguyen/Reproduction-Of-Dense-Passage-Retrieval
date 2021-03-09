@@ -1,12 +1,13 @@
 import pandas as pd
 import torch.utils.data
+# import numpy as np  # necessary for the testing at the bottom
 import torch
 import os
 from ast import literal_eval
 
 from transformers import BertTokenizer, BertModel, BertForMaskedLM
 
-MAGIC_DELIMITER = "#&%@"
+# MAGIC_DELIMITER = "#&%@"
 
 class QAPairDataset(torch.utils.data.Dataset):
 
@@ -28,15 +29,21 @@ class QAPairDataset(torch.utils.data.Dataset):
         # in the list except for the first one, and 2. squish those items into a tuple and
         # then wrap into list. Hacky way to fix: add esoteric delimiter so that we can use
         # a dataloader still
-        joined_answer = MAGIC_DELIMITER.join(answer)
+        # joined_answer = MAGIC_DELIMITER.join(answer)
 
-        return torch.Tensor(ques_token), joined_answer
+        return torch.Tensor(ques_token), '''joined_answer,''' index
 
-"""
+
 dataset = QAPairDataset("head-test.csv")
-loader = torch.utils.data.DataLoader(dataset, batch_size=2)
+loader = torch.utils.data.DataLoader(dataset, batch_size=1)
 
-for x, y in loader:
-    print(x)
-    print(y)
-"""
+print(type(loader.dataset.df["answer"][1]))
+print(loader.dataset.df["answer"][1])
+
+# for x, y, z in loader:
+#     print(x)
+#     print(y)
+#     print(z)
+#     print(z.shape)
+#     print(np.expand_dims(z.numpy(), axis=1).shape)
+

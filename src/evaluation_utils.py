@@ -36,7 +36,7 @@ def deserialize_vectors(filename):
 
 # question_embeddings should be a list of matrices each of ~num_questions/4 x d
 # passage_embeddings should be a list of matrices each of ~num_psgs/4 x d
-def evaluate_wiki(question_embeddings, passage_embeddings, wiki_loader, qa_pair_loader, k=100):
+def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, k=100):
     global_passage_embeddings = np.zeros((0, 100), dtype=np.float32)
     global_question_embeddings = np.zeros((0, 100), dtype=np.float32)
 
@@ -73,14 +73,14 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_loader, qa_pair_
     correct = 0
     for i in range(results.shape[0]):
 
-        # DataLoader.WikiDataset.df['passage'][results[i, :]] will be a list
+        # WikiDataset.df['passage'][results[i, :]] will be a list
         # of pandas series objects, so we index into [1] to get the actual entry
         # i.e. the passage text
-        psg_texts = wiki_loader.dataset.df['passage'][results[i, :]][1]
+        psg_texts = wiki_dataset.df['passage'][results[i, :]][1]
 
         # these are the answers pertaining to the current question, indexed off
         # of the *global question index*
-        answer_texts = qa_pair_loader.dataset.df['answers'][i]
+        answer_texts = qa_pair_dataset.df['answers'][i]
         
         # normalize the passages
         normalized_psgs = [_normalize_answer(psg) for psg in psg_texts]

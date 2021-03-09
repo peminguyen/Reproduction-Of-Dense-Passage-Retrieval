@@ -33,6 +33,7 @@ def main():
 
 def create_embeddings(gpu, args):
 
+    args.world_size = int(args.world_size)
     torch.manual_seed(0)
     rank = gpu
     torch.cuda.set_device(rank)
@@ -44,7 +45,7 @@ def create_embeddings(gpu, args):
 
     # create wikipedia loader (it returns tokenized passages)
     wiki_set = WikiDataset(args.wiki)
-    wiki_sampler = torch.utils.data.distributed.DistributedSampler(train_set, num_replicas=args.world_size,
+    wiki_sampler = torch.utils.data.distributed.DistributedSampler(wiki_set, num_replicas=args.world_size,
                                                                    rank=rank)
     wiki_loader = torch.utils.data.DataLoader(wiki_set, batch_size=int(args.b), pin_memory=True,
                                               sampler=wiki_sampler)
@@ -64,8 +65,9 @@ def create_embeddings(gpu, args):
     # We do the same thing for the questions
     ques_embeddings = np.zeros((0, 769), dtype=np.float32)
 
-    net = BERT_QA().cuda(gpu)
-    net = torch.load(args.model)
+    net = BERT_QA()
+    net = restore(net, args.model) # torch.load(args.model)
+    net = net.cuda(gpu)
     model = nn.parallel.DistributedDataParallel(net, device_ids=[gpu], find_unused_parameters=True)
     model.eval()
 
@@ -82,7 +84,7 @@ def create_embeddings(gpu, args):
             psg_embeddings = np.concatenate((psg_embeddings, p_emb), axis=0)
 
             if batch_idx % log_interval == 0:
-                print(f'Embedded {batch_idx} passages')
+                print(f'Embedded {batch_idx} batches of passages')
 
     print("==========embedding the questions==========")
     for batch_idx, (ques, ques_indices) in enumerate(qa_pair_loader):
@@ -98,7 +100,7 @@ def create_embeddings(gpu, args):
             ques_embeddings = np.concatenate((ques_embeddings, q_emb), axis=0)
 
             if batch_idx % log_interval == 0:
-                print(f'Embedded {batch_idx} questions')
+                print(f'Embedded {batch_idx} batches of questions')
 
     serialize_matrix(psg_embeddings, f"./embeddings/{args.experiment}-psg-{rank}.h5")
     serialize_matrix(ques_embeddings, f"./embeddings/{args.experiment}-ques-{rank}.h5")

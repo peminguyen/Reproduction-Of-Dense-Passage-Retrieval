@@ -95,14 +95,14 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_loader, qa_pair_
     print(f"top-{k} accuracy is {correct / results.shape[0]}")
     return correct / results.shape[0]
 
-np.random.seed(1234)
-psgs = np.random.random((1000, 100)).astype('float32')
-questions = np.random.random((15, 100)).astype('float32')
-serialize_vectors("psgs.h5", psgs);
-serialize_vectors("questions.h5", questions);
-d_psgs = deserialize_vectors("psgs.h5");
-d_questions = deserialize_vectors("questions.h5")
-print(np.array_equal(psgs, d_psgs))
-print(np.array_equal(questions, d_questions))
-evaluate_wiki([questions], [psgs])
+# np.random.seed(1234)
+# psgs = np.random.random((1000, 100)).astype('float32')
+# questions = np.random.random((15, 100)).astype('float32')
+# serialize_vectors("psgs.h5", psgs);
+# serialize_vectors("questions.h5", questions);
+# d_psgs = deserialize_vectors("psgs.h5");
+# d_questions = deserialize_vectors("questions.h5")
+# print(np.array_equal(psgs, d_psgs))
+# print(np.array_equal(questions, d_questions))
+# evaluate_wiki([questions], [psgs])
 

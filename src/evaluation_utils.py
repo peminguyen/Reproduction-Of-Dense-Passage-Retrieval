@@ -49,7 +49,6 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
         global_question_embeddings = np.concatenate((global_question_embeddings,
                                                   question_embedding), axis=0)
     
-    print(type(global_passage_embeddings[0, 0]))
     # sort the passages and questions by the global indices
     print("sorting global passage embeddings")
     global_passage_embeddings = \
@@ -57,12 +56,10 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     print("sorting global question embeddings")
     global_question_embeddings = \
             global_question_embeddings[np.argsort(global_question_embeddings[:, 0])]
-    print(type(global_passage_embeddings[0, 0]))
 
     # slice off the global indices because they will mess up FAISS
     global_passage_embeddings = np.ascontiguousarray(global_passage_embeddings[:, 1:])
     global_question_embeddings = np.ascontiguousarray(global_question_embeddings[:, 1:])
-    print(type(global_passage_embeddings[0, 0]))
 
     index = faiss.IndexFlatIP(global_passage_embeddings.shape[1])
     index.add(global_passage_embeddings)
@@ -73,10 +70,9 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     correct = 0
     for i in range(results.shape[0]):
 
-        # WikiDataset.df['passage'][results[i, :]] will be a list
-        # of pandas series objects, so we index into [1] to get the actual entry
-        # i.e. the passage text
-        psg_texts = wiki_dataset.df['passage'][results[i, :]][1]
+        # WikiDataset.df['passage'][results[i, :]] will be a pandas series
+        # object, so we convert to list
+        psg_texts = wiki_dataset.df['passage'][results[i, :]].tolist()
 
         # these are the answers pertaining to the current question, indexed off
         # of the *global question index*
@@ -89,7 +85,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
         normalized_answers = [_normalize_answer(answer) for answer in answers_texts]
 
         # check to see if answer string in any of the passages
-        if any([answer in passage for answer in normalized_answers for passage in normalized_passages]):
+        if any([str(answer) in passage for answer in normalized_answers for passage in normalized_passages]):
             correct += 1
     
     print(f"top-{k} accuracy is {correct / results.shape[0]}")

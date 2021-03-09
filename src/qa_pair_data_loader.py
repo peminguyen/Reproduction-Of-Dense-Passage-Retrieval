@@ -13,7 +13,8 @@ class QAPairDataset(torch.utils.data.Dataset):
 
     def __init__(self, path):
 
-        self.df = pd.read_csv(path, sep='\t', names=['question', 'answer'], converters={'answer': eval})
+        self.df = pd.read_csv(path, sep='\t', names=['question', 'answer'],
+                              converters={'question': str, 'answer': eval})
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     def __len__(self):

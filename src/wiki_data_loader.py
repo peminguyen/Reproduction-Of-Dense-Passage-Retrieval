@@ -7,8 +7,14 @@ from transformers import BertTokenizer, BertModel, BertForMaskedLM
 
 class WikiDataset(torch.utils.data.Dataset):
     def __init__(self, path):
+        
+        # There's an article with the title "NaN" that gets parsed to a float...
+        self.df = pd.read_csv(path, sep='\t',
+                              names=['junk', 'passage', 'title'],
+                              converters={'passage': str, 'title': str})
+        self.df.drop(columns=['junk'], inplace=True)
+        self.df.reset_index(level=0, inplace=True)
 
-        self.df = pd.read_csv(path, sep='\t', names=['index', 'passage', 'title'])
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     def  __len__(self):

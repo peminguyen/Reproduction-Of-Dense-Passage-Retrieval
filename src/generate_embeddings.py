@@ -85,7 +85,7 @@ def create_embeddings(gpu, args):
                 print(f'Embedded {batch_idx} passages')
 
     print("==========embedding the questions==========")
-    for batch_idx, (ques, '''_,''' ques_indices) in enumerate(qa_pair_loader):
+    for batch_idx, (ques, ques_indices) in enumerate(qa_pair_loader):
         with torch.no_grad():
             ques = ques.long().cuda(non_blocking=True)
 

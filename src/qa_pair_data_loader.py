@@ -31,14 +31,14 @@ class QAPairDataset(torch.utils.data.Dataset):
         # a dataloader still
         # joined_answer = MAGIC_DELIMITER.join(answer)
 
-        return torch.Tensor(ques_token), '''joined_answer,''' index
+        return torch.Tensor(ques_token), index
 
 
-dataset = QAPairDataset("head-test.csv")
-loader = torch.utils.data.DataLoader(dataset, batch_size=1)
+# dataset = QAPairDataset("head-test.csv")
+# loader = torch.utils.data.DataLoader(dataset, batch_size=1)
 
-print(type(loader.dataset.df["answer"][1]))
-print(loader.dataset.df["answer"][1])
+# print(type(loader.dataset.df["answer"][1]))
+# print(loader.dataset.df["answer"][1])
 
 # for x, y, z in loader:
 #     print(x)

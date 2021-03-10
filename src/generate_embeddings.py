@@ -7,6 +7,7 @@ import argparse
 import torch.multiprocessing as mp
 import torch.distributed as dist
 import numpy as np
+from collections import OrderedDict
 
 from model import *
 from wiki_data_loader import *
@@ -66,7 +67,13 @@ def create_embeddings(gpu, args):
     ques_embeddings = np.zeros((0, 769), dtype=np.float32)
 
     net = BERT_QA()
-    net = restore(net, args.model) # torch.load(args.model)
+    state_dict = torch.load(args.model)
+    new_dict = OrderedDict() #copy.deepcopy(net.state_dict())
+    for k,v in state_dict.items():
+        new_key = k[7:]
+        new_dict[new_key] = v
+
+    net.load_state_dict(new_dict)
     net = net.cuda(gpu)
     model = nn.parallel.DistributedDataParallel(net, device_ids=[gpu], find_unused_parameters=True)
     model.eval()

@@ -30,6 +30,12 @@ def main():
     os.environ['MASTER_ADDR'] = '127.0.0.1'
     os.environ['MASTER_PORT'] = '1234'
 
+    if os.path.exists('./embeddings/'):
+        pass
+    else:
+        os.makedirs('./embeddings/')
+
+
     print(torch.cuda.is_available())
 
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
@@ -105,7 +111,7 @@ def create_embeddings(gpu, args):
 
     print("==========embedding the passages==========")
     for batch_idx, (passage, psg_indices) in enumerate(wiki_loader):
-        if batch_idx > 100:
+        if batch_idx > 1000:
             break
 
         with torch.no_grad():

@@ -1,6 +1,7 @@
 import torch.utils.data
 import torch
 import os
+import argparse
 
 from utils.evaluation_utils import *
 from utils.wiki_data_loader import *
@@ -18,8 +19,8 @@ def main():
     passage_embeddings = []
     question_embeddings = []
     for i in range(args.world_size):
-        passage_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-psg-{i}.h5")))
-        question_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-ques-{i}.h5"))))
+        passage_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-psg-{i}.h5").astype(np.float32))
+        question_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-ques-{i}.h5").astype(np.float32))
     
     wiki_dataset = WikiDataset(args.wiki)
     qa_pair_dataset = QAPairDataset(args.qa_pair)
@@ -29,7 +30,7 @@ def main():
                             passage_embeddings,
                             wiki_dataset, qa_pair_dataset, ks=ks)
     
-    file = open("results.txt", "w")
+    file = open("results.txt", "a")
     for i in range(len(ks)):
         file.write(f"Experiment {args.v}: top-{ks[i]} accuracy is {results[i]}\n");
     

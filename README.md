@@ -31,8 +31,6 @@ Note: from here on out in installation, there is a bash script that runs everyth
 
 5. `tar -xzvf bert-base-uncased.tar.gz`
 
-6. `cd ..`
-
 ### Setting up conda
 
 Starting from your home directory,

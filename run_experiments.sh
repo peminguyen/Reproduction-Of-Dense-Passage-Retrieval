@@ -11,7 +11,7 @@ VERSION=0
 WIKI='./wikipedia_data/data/wikipedia_split/psgs_w100_subset.tsv'
 QA='nq-dev.csv'
 
-
+cd ./src/
 for k in {1,5}
 do
   echo $VERSION

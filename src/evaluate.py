@@ -14,7 +14,6 @@ def main():
     parser.add_argument("--experiment", help="used to write h5 files")
     args = parser.parse_args()
 
-    f"./embeddings/{args.experiment}-psg-{rank}.h5")
     args.world_size = int(args.world_size)
     passage_embeddings = []
     question_embeddings = []

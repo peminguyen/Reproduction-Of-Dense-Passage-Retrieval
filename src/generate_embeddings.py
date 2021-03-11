@@ -131,8 +131,8 @@ def create_embeddings(gpu, args):
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} batches of questions')
 
-    serialize_matrix(psg_embeddings, f"./embeddings/{args.experiment}-psg-{rank}.h5")
-    serialize_matrix(ques_embeddings, f"./embeddings/{args.experiment}-ques-{rank}.h5")
+    serialize_vectors(psg_embeddings, f"./embeddings/{args.experiment}-psg-{rank}.h5")
+    serialize_vectors(ques_embeddings, f"./embeddings/{args.experiment}-ques-{rank}.h5")
 
 if __name__ == '__main__':
     main()

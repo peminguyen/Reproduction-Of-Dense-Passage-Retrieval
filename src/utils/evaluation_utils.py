@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import faiss
 import regex as re
+import string
 
 # from Facebook/DPR repo (Karpukhin et al, EMNLP 2020)
 def _normalize_answer(s):

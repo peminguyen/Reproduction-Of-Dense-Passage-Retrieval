@@ -57,7 +57,7 @@ def create_embeddings(gpu, args):
                                                                    num_replicas=args.world_size,
                                                                    rank=rank)
     wiki_loader = torch.utils.data.DataLoader(wiki_set,
-                                              batch_size=int(args.b),
+                                              batch_size=int(args.b)//int(args.world_size),
                                               pin_memory=True,
                                               sampler=wiki_sampler)
 
@@ -67,7 +67,7 @@ def create_embeddings(gpu, args):
                                                                       num_replicas=args.world_size,
                                                                       rank=rank)
     qa_pair_loader = torch.utils.data.DataLoader(qa_pair_set,
-                                                 batch_size=int(args.b),
+                                                 batch_size=int(args.b)//int(args.world_size),
                                                  pin_memory=True,
                                                  sampler=qa_pair_sampler)
 

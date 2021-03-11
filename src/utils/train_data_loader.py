@@ -45,19 +45,14 @@ class NQDataset(torch.utils.data.Dataset):
         # [CLS] <question> [SEP]
         ques_token = self.tokenizer.encode(ques, add_special_tokens=True, max_length=64, padding='max_length', truncation=True)
 
-        # 0 indexes us into the *first* answer in the answers list
-        # We don't ever need this unless we're doing stuff with the reader, but we'll leave in
-        answer = self.df['answers'][index][0]
-
         return torch.Tensor(ques_token), torch.Tensor(pos_ctx_token), torch.Tensor(hard_neg_ctx_token)
 
-"""
-train_set = NQDataset('./data/retriever/nq-dev.json')
-loader = torch.utils.data.DataLoader(train_set, batch_size=2, shuffle=True)
+# train_set = NQDataset(r"../test/nq-dev.json")
+# loader = torch.utils.data.DataLoader(train_set, batch_size=2, shuffle=True)
 
-for x,y,z in loader:
-    print(x.shape, "\n")
-    print(y.shape, "\n")
-    print(z.shape, "\n")
-    break
-"""
+# for x,y,z in loader:
+#     print(x.shape, "\n")
+#     print(y.shape, "\n")
+#     print(z.shape, "\n")
+#     break
+

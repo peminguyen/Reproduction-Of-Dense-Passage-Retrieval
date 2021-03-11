@@ -5,7 +5,7 @@ import pandas as pd
 import faiss
 import regex as re
 
-# from DPR repo (Karpukhin et al, EMNLP 2020)
+# from Facebook/DPR repo (Karpukhin et al, EMNLP 2020)
 def _normalize_answer(s):
     def remove_articles(text):
         return re.sub(r"\b(a|an|the)\b", " ", text)
@@ -34,11 +34,11 @@ def deserialize_vectors(filename):
     out = h5f["data"][:]
     return out
 
-# question_embeddings should be a list of matrices each of ~num_questions/4 x d
-# passage_embeddings should be a list of matrices each of ~num_psgs/4 x d
+# question_embeddings should be a list of matrices each of ~num_questions/world_size x d
+# passage_embeddings should be a list of matrices each of ~num_psgs/world_size x d
 def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, k=100):
-    global_passage_embeddings = np.zeros((0, 100), dtype=np.float32)
-    global_question_embeddings = np.zeros((0, 100), dtype=np.float32)
+    global_passage_embeddings = np.zeros((0, 769), dtype=np.float32)
+    global_question_embeddings = np.zeros((0, 769), dtype=np.float32)
 
     print(passage_embeddings[0].shape)
     for passage_embedding in passage_embeddings:
@@ -57,7 +57,8 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     global_question_embeddings = \
             global_question_embeddings[np.argsort(global_question_embeddings[:, 0])]
 
-    # slice off the global indices because they will mess up FAISS
+    # slice off the global indices because they aren't actually part of the
+    # embedding
     global_passage_embeddings = np.ascontiguousarray(global_passage_embeddings[:, 1:])
     global_question_embeddings = np.ascontiguousarray(global_question_embeddings[:, 1:])
 
@@ -81,7 +82,8 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
         # normalize the passages
         normalized_psgs = [_normalize_answer(psg) for psg in psg_texts]
 
-        # normalize the answers
+        # normalize the answers. Make sure that pandas didn't do anything weird
+        # with the strings in the answer list and cast them as strings
         normalized_answers = [_normalize_answer(str(answer)) for answer in answers_texts]
 
         # check to see if answer string in any of the passages
@@ -94,10 +96,10 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
 # np.random.seed(1234)
 # psgs = np.random.random((1000, 100)).astype('float32')
 # questions = np.random.random((15, 100)).astype('float32')
-# serialize_vectors("psgs.h5", psgs);
-# serialize_vectors("questions.h5", questions);
-# d_psgs = deserialize_vectors("psgs.h5");
-# d_questions = deserialize_vectors("questions.h5")
+# serialize_vectors(r"../test/psgs.h5", psgs);
+# serialize_vectors(r"../test/questions.h5", questions);
+# d_psgs = deserialize_vectors(r"../test/psgs.h5");
+# d_questions = deserialize_vectors(r"../test/uestions.h5")
 # print(np.array_equal(psgs, d_psgs))
 # print(np.array_equal(questions, d_questions))
 # evaluate_wiki([questions], [psgs])

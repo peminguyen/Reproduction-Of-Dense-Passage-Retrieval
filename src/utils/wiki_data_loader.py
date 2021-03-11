@@ -29,12 +29,12 @@ class WikiDataset(torch.utils.data.Dataset):
 
         return torch.Tensor(passage_token), index
 
-# dataset = WikiDataset(r"test.tsv")
+# dataset = WikiDataset(r"../test/test.tsv")
 # loader = torch.utils.data.DataLoader(dataset, batch_size=2)
 
 # print(type(loader.dataset.df['passage'][[1, 3, 5]][1]))
 
-# for x in loader:
+# for x, y in loader:
 #     print(x.shape, "\n")
 #     print(x)
 

@@ -16,8 +16,10 @@ class BERT_QA(nn.Module):
 
         self.tokenizer = tokenizer  
         print("Init")
+        # encoder for question
         self.bert_q = BertModel.from_pretrained('./bert_stuff')
         print("Q")
+        # encoder for passage
         self.bert_p = BertModel.from_pretrained('./bert_stuff')
         print("P")
 

@@ -2,25 +2,22 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import torch.nn.functional as F
 import torch.optim as optim
 import argparse
 import torch.multiprocessing as mp
 import torch.distributed as dist
 
-from utils import *
-from train_data_loader import *
+from utils.utils import *
+from utils.train_data_loader import *
 from model import *
-from dist_utils import *
-#import wandb
-#wandb.init()
-
-
+from utils.dist_utils import *
+import wandb
+# wandb.init()
 
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--b", help="batch size", default="10")
+    parser.add_argument("--b", help="batch size", default="32")
     parser.add_argument("--e", help="number of epochs", default="100")
     parser.add_argument("--lr", help="initial learning rate", default="1e-5")
     parser.add_argument("--v", help="experiment version", default="0.1")
@@ -38,6 +35,8 @@ def main():
     os.environ['MASTER_PORT'] = '1234'
     print(torch.cuda.is_available())
 
+    assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
+
     mp.spawn(train, nprocs=int(args.world_size), args=(args,))
 
 def train(gpu, args):
@@ -46,19 +45,34 @@ def train(gpu, args):
     rank = gpu
     torch.cuda.set_device(rank)
     print(rank)
-    dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
+    dist.init_process_group(backend='nccl',
+                            init_method='env://',
+                            world_size=args.world_size,
+                            rank=rank)
 
 
     train_set = NQDataset(args.train_set)
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_set,num_replicas=args.world_size,rank=rank)
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=int(args.b), num_workers=0, pin_memory=True, sampler=train_sampler)
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_set,
+                                                                    num_replicas=args.world_size,
+                                                                    rank=rank)
+    train_loader = torch.utils.data.DataLoader(train_set,
+                                               batch_size=int(args.b)//int(args.world_size),
+                                               num_workers=0, pin_memory=True,
+                                               sampler=train_sampler)
 
     dev_set = NQDataset(args.dev_set)
-    dev_sampler = torch.utils.data.distributed.DistributedSampler(dev_set,num_replicas=args.world_size,rank=rank)
-    dev_loader = torch.utils.data.DataLoader(dev_set, batch_size=int(args.b), num_workers=0, pin_memory=True, sampler=dev_sampler)
+    dev_sampler = torch.utils.data.distributed.DistributedSampler(dev_set,
+                                                                  num_replicas=args.world_size,
+                                                                  rank=rank)
+    dev_loader = torch.utils.data.DataLoader(dev_set,
+                                             batch_size=int(args.b)//int(args.world_size),
+                                             num_workers=0, pin_memory=True,
+                                             sampler=dev_sampler)
 
     net = BERT_QA().cuda(gpu)
-    model = nn.parallel.DistributedDataParallel(net, device_ids=[gpu], find_unused_parameters=True)
+    model = nn.parallel.DistributedDataParallel(net,
+                                                device_ids=[gpu], 
+                                                find_unused_parameters=True)
     print("Downloaded models")
 
     LOG_PATH = './logs/' + args.v  + '/'
@@ -78,13 +92,13 @@ def train(gpu, args):
         f.write("\nComments: " + args.m)
 
     log_interval = 20
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=0, eps=1e-8)
-    min_loss = 10
+    max_score = -1
     train_log = os.path.join(LOG_PATH, 'train_log.txt')
-    test_log = os.path.join(LOG_PATH, 'test_log.txt')
+    dev_log = os.path.join(LOG_PATH, 'dev_log.txt')
 
     print(rank)
 
+    warmup_counter = 0
     for epoch in range(int(args.e)):
 
         print("="*10 + "Epoch " + str(epoch) + "="*10)
@@ -92,31 +106,38 @@ def train(gpu, args):
         model.train()
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(train_loader):
 
+            warmup_counter += 1
+            this_learning_rate = LEARNING_RATE
+            # linear learning rate warmup over first 500 batches
+            if warmup_counter < 500:
+                this_learning_rate *= (warmup_counter / 500)
 
-            #if batch_idx > 50:
-            #    break
+            optimizer = optim.Adam(model.parameters(), lr=this_learning_rate,
+                                   weight_decay=0, eps=1e-8)
 
-            # TODO: clean this up (alternating positive/negative contexts)
             ques = ques.long().cuda(non_blocking=True)
 
+            # we concatenate our positive and negative contexts received
+            # from our train_loader with the convention that the *positive*
+            # context is on the even indices and the hard negative contexts
+            # on the odd indices. We later use this convention as a nice way
+            # to implement the in-batch negative sampling.
             psg = torch.cat((pos_ctx, neg_ctx), dim=1)
             psg = psg.reshape((-1, 256))
             psg = psg.long().cuda(non_blocking=True)
 
-            #net = net.cuda()
-
             optimizer.zero_grad()
             q_emb, p_emb = model(ques, psg)
-            #sim,idx = net.get_sim(q_emb, p_emb)
-            #loss = net.loss_fn(sim, idx)
-            #losses.append(loss.item())
+
+            # calc_loss does all of the loss calculation for us; it 
             loss = calc_loss(rank, net, q_emb, p_emb)
             loss.mean().backward()
             optimizer.step()
 
             if batch_idx % log_interval == 0:
+                if rank == 0:
+                    wandb.log({'train_loss': loss.item()})
 
-                #wandb.log({'train_loss': loss.item()})
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx, len(train_loader),
                     100. * batch_idx / len(train_loader), loss.item()))
@@ -125,13 +146,10 @@ def train(gpu, args):
                     f.write(str(loss.item()) + "\n")
 
 
-        test_losses = []
-        test_scores = []
+        dev_losses = []
+        dev_scores = []
         model.eval()
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(dev_loader):
-            #print(len(test_losses))
-            #if batch_idx > 100:
-            #    break
             with torch.no_grad():
                 ques = ques.long().cuda(non_blocking=True)
 
@@ -145,29 +163,26 @@ def train(gpu, args):
 
                 preds = np.argmax(sim.detach().cpu().numpy(), axis=1)
                 score = np.sum(preds == idx.cpu().detach().numpy())/len(preds)
-                #print(np.sum(preds == idx.cpu().detach().numpy()))
-                #score = top_k_accuracy_score(idx, sim, k=1)
-                test_scores.append(score)
+                dev_scores.append(score)
 
                 loss = net.loss_fn(sim, idx)
-                test_losses.append(loss.item())
+                dev_losses.append(loss.item())
 
 
-        if rank == 0 and np.mean(test_losses) < min_loss:
-            min_loss = np.mean(test_losses)
+        if rank == 0 and np.mean(dev_scores) > max_score:
+            min_loss = np.mean(dev_scores)
             save(model, os.path.join(LOG_PATH, '%03d.pt' % epoch), num_to_keep=1)
 
+        if rank == 0:
+            wandb.log({'val_loss': np.mean(dev_losses)})
+            wandb.log({'val_acc': np.mean(dev_scores)})
+        with open(dev_log, 'a+') as f:
+            f.write(str(np.mean(dev_losses)))
 
-        #wandb.log({'val_loss': np.mean(test_losses)})
-        #wandb.log({'val_acc': np.mean(test_scores)})
-        with open(test_log, 'a+') as f:
-            f.write(str(np.mean(test_losses)))
-
-        print('Val Loss:', np.mean(test_losses), ' Val Acc:', np.mean(test_scores))
+        print('Val Loss:', np.mean(dev_losses), ' Val Acc:', np.mean(dev_scores))
 
     if rank == 0:
         save(model, os.path.join(LOG_PATH, '%03d.pt' % epoch), num_to_keep=2)
 
 if __name__ == '__main__':
-    #mp.freeze_support()
     main()

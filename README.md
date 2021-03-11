@@ -59,5 +59,8 @@ TODO
 
 TODO
 
+Wandb
+
+
 https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html
 

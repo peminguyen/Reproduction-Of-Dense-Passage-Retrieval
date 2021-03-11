@@ -10,10 +10,10 @@ import numpy as np
 from collections import OrderedDict
 
 from model import *
-from wiki_data_loader import *
-from qa_pair_data_loader import *
-from evaluation_utils import *
-from utils import *
+from utils.wiki_data_loader import *
+from utils.qa_pair_data_loader import *
+from utils.evaluation_utils import *
+from utils.utils import *
 
 def main():
     parser = argparse.ArgumentParser()
@@ -42,20 +42,28 @@ def create_embeddings(gpu, args):
 
     log_interval = 100
 
-    dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
+    dist.init_process_group(backend='nccl',
+                            init_method='env://',
+                            world_size=args.world_size, rank=rank)
 
     # create wikipedia loader (it returns tokenized passages)
     wiki_set = WikiDataset(args.wiki)
-    wiki_sampler = torch.utils.data.distributed.DistributedSampler(wiki_set, num_replicas=args.world_size,
+    wiki_sampler = torch.utils.data.distributed.DistributedSampler(wiki_set, 
+                                                                   num_replicas=args.world_size,
                                                                    rank=rank)
-    wiki_loader = torch.utils.data.DataLoader(wiki_set, batch_size=int(args.b), pin_memory=True,
+    wiki_loader = torch.utils.data.DataLoader(wiki_set,
+                                              batch_size=int(args.b),
+                                              pin_memory=True,
                                               sampler=wiki_sampler)
 
     # create questions loader (it returns tokenized questions)
     qa_pair_set = QAPairDataset(args.qa_pair)
-    qa_pair_sampler = torch.utils.data.distributed.DistributedSampler(qa_pair_set, num_replicas=args.world_size,
+    qa_pair_sampler = torch.utils.data.distributed.DistributedSampler(qa_pair_set,
+                                                                      num_replicas=args.world_size,
                                                                       rank=rank)
-    qa_pair_loader = torch.utils.data.DataLoader(qa_pair_set, batch_size=int(args.b), pin_memory=True,
+    qa_pair_loader = torch.utils.data.DataLoader(qa_pair_set,
+                                                 batch_size=int(args.b),
+                                                 pin_memory=True,
                                                  sampler=qa_pair_sampler)
 
     # concatenate the indices:
@@ -67,15 +75,19 @@ def create_embeddings(gpu, args):
     ques_embeddings = np.zeros((0, 769), dtype=np.float32)
 
     net = BERT_QA()
+
+    # https://stackoverflow.com/a/44319982
     state_dict = torch.load(args.model)
-    new_dict = OrderedDict() #copy.deepcopy(net.state_dict())
-    for k,v in state_dict.items():
+    new_dict = OrderedDict()
+    for k, v in state_dict.items():
         new_key = k[7:]
         new_dict[new_key] = v
-
     net.load_state_dict(new_dict)
+
     net = net.cuda(gpu)
-    model = nn.parallel.DistributedDataParallel(net, device_ids=[gpu], find_unused_parameters=True)
+    model = nn.parallel.DistributedDataParallel(net,
+                                                device_ids=[gpu],
+                                                find_unused_parameters=True)
     model.eval()
 
     print("==========embedding the passages==========")

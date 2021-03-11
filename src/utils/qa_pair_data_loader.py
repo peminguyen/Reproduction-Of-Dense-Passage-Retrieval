@@ -7,7 +7,6 @@ from ast import literal_eval
 
 from transformers import BertTokenizer, BertModel, BertForMaskedLM
 
-# MAGIC_DELIMITER = "#&%@"
 
 class QAPairDataset(torch.utils.data.Dataset):
 
@@ -25,17 +24,10 @@ class QAPairDataset(torch.utils.data.Dataset):
         ques_token = self.tokenizer.encode(ques, add_special_tokens=True, max_length=64,
                                            padding='max_length', truncation=True)
 
-        answer = self.df['answer'][index]
-        # For some reason, the pytorch dataloader default_collate will 1. delete all items
-        # in the list except for the first one, and 2. squish those items into a tuple and
-        # then wrap into list. Hacky way to fix: add esoteric delimiter so that we can use
-        # a dataloader still
-        # joined_answer = MAGIC_DELIMITER.join(answer)
-
         return torch.Tensor(ques_token), index
 
 
-# dataset = QAPairDataset("head-test.csv")
+# dataset = QAPairDataset(r"../test/head-test.csv")
 # loader = torch.utils.data.DataLoader(dataset, batch_size=1)
 
 # print(type(loader.dataset.df["answer"][1]))

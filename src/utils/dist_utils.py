@@ -1,4 +1,4 @@
-# This stuff is from Facebook
+# This stuff is from Facebook, we use it in training.py
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.

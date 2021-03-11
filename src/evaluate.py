@@ -2,9 +2,9 @@ import torch.utils.data
 import torch
 import os
 
-from evaluation_utils import *
-from wiki_data_loader import *
-from qa_pair_data_loader import *
+from utils.evaluation_utils import *
+from utils.wiki_data_loader import *
+from utils.qa_pair_data_loader import *
 
 def main():
     parser = argparse.ArgumentParser()
@@ -28,7 +28,9 @@ def main():
     ks = [20, 100]
     results = []
     for k_val in ks:
-        result = evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, k=k_val)
+        result = evaluate_wiki(question_embeddings,
+                               passage_embeddings,
+                               wiki_dataset, qa_pair_dataset, k=k_val)
         results.append(result)
     
 if __name__ == '__main__':

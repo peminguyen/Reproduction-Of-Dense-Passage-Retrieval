@@ -85,7 +85,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
 
         # normalize the answers. Make sure that pandas didn't do anything weird
         # with the strings in the answer list and cast them as strings
-        normalized_answers = [_normalize_answer(str(answer)) for answer in answers_texts]
+        normalized_answers = [_normalize_answer(str(answer)) for answer in answer_texts]
 
         # check to see if answer string in any of the passages
         if any([answer in passage for answer in normalized_answers for passage in normalized_passages]):

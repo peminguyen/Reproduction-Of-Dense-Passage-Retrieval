@@ -3,16 +3,16 @@ import torch.utils.data
 import torch
 import os
 from transformers import BertTokenizer, BertModel, BertForMaskedLM
-
+import random
 
 # NQDataset class
 class NQDataset(torch.utils.data.Dataset):
-    def __init__(self, path):
+    def __init__(self, path, k=1):
 
         self.df = pd.read_json(path)
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        # choosing top-K 
-
+        self.k = k
+        
     def __len__(self):
         return len(self.df.index)
 
@@ -32,7 +32,12 @@ class NQDataset(torch.utils.data.Dataset):
 
         # if no hard negative contexts found, choose a regular negative one
         if len(self.df['hard_negative_ctxs'][index]) != 0:
-            hard_neg_ctx = self.df['hard_negative_ctxs'][index][0]
+            if self.k == 1:
+                hard_neg_ctx = self.df['hard_negative_ctxs'][index][0]
+             else:
+                N = len(self.df['hard_negative_ctxs'][index])
+                sample = random.randint(0, min(self.k,N - 1))
+                hard_neg_ctx = self.df['hard_negative_ctxs'][index][sample]
         else:
             hard_neg_ctx = self.df['negative_ctxs'][index][0]
 

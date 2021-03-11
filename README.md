@@ -11,49 +11,65 @@ These are install instructions to get *literally everything* working on a fresh 
 1. `sudo apt install git-all`
 	* Answer "yes" if you're prompted.
 
-2. `source .bashrc`
+2. `sudo source .bashrc`
 	* This reloads your shell, and the git command should now work. We use this multiple times throughout the setup process.
 
 ### Experiment code
 
 This should be cloned in the home directory of your VM.
 
-1. `git clone https://github.com/peminguyen/CSE517-final-project.git`
+1. `sudo git clone https://github.com/peminguyen/CSE517-final-project.git`
 	* We need environment.yml for setting up conda.
 
 2. `cd CSE517-final-project`
 
-3. `mkdir bert_stuff; cd bert_stuff`
+3. `sudo mkdir bert-base-uncased; cd bert-base-uncased`
  
-4. `wget https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz`
+4. `sudo wget https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz`
 
-5. `tar -xzvf bert-base-uncased.tar.gz`
+5. `sudo tar -xzvf bert-base-uncased.tar.gz`
+
+TODO: pick up distillbert
 
 ### Setting up conda
 
 Starting from your home directory,
 
-1. `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
+1. `sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
 
-2. `bash Miniconda3-latest-Linux-x86_64.sh`
+2. `sudo bash Miniconda3-latest-Linux-x86_64.sh`
 	* Go through the prompts. Leaving everything as defaults should be fine. You should run conda init.
 
-3. `source .bashrc`
+3. `sudo source .bashrc`
 
-4. `conda env create -f CSE517-final-project/environment.yml`
+4. `sudo conda env create -f CSE517-final-project/environment.yml`
 	* There's probably quite a few extraneous packages in this `environment.yml` file, but this is guaranteed to work. Feel free to prune stuff that you find isn't needed, though it'll probably be really time-consuming.
 
 5. `conda activate DPR`
 
 ### Getting the data
 
+Start from your home directory.
+
 #### Preprocessed Natural Questions (NQ) data
 
-TODO
+1. `git clone https://github.com/facebookresearch/DPR.git`
+
+2. `cd DPR/dpr`
+
+3. `python3 data/download_data.py --resource data.retriever.qas --output_dir ~`
+
+4. `python3 data/download_data.py --resource data.retriever.nq --output_dir ~`
 
 #### EfficientQA subset of Wikipedia
 
-TODO
+1. `python3 data/download_data.py --resource data.wikipedia_split --output_dir ~`
+
+2. `cd ~`
+
+3. `git clone https://github.com/efficientqa/retrieval-based-baselines.git`
+
+4. `cd retrieval-based-baselines; python3 filter_subset_wiki.py --db_path ~/downloads/data/wikipedia_split/psgs_w100.tsv --data_path ~/downloads/data/retriever/nq-train.json`
 
 # Running the Experiments
 

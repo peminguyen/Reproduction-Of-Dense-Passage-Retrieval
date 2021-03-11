@@ -54,7 +54,7 @@ def train(gpu, args):
                             rank=rank)
 
 
-    train_set = NQDataset(args.train_set)
+    train_set = NQDataset(args.train_set, k=int(args.top_k))
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set,
                                                                     num_replicas=args.world_size,
                                                                     rank=rank)
@@ -63,7 +63,7 @@ def train(gpu, args):
                                                num_workers=0, pin_memory=True,
                                                sampler=train_sampler)
 
-    dev_set = NQDataset(args.dev_set)
+    dev_set = NQDataset(args.dev_set, k=int(args.top_k))
     dev_sampler = torch.utils.data.distributed.DistributedSampler(dev_set,
                                                                   num_replicas=args.world_size,
                                                                   rank=rank)

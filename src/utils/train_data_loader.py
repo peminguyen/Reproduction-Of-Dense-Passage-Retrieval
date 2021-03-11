@@ -11,6 +11,7 @@ class NQDataset(torch.utils.data.Dataset):
 
         self.df = pd.read_json(path)
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        # choosing top-K 
 
     def __len__(self):
         return len(self.df.index)

@@ -25,6 +25,8 @@ def main():
     parser.add_argument("--dev_set", help="path to training dataset (h5 file)", default='/x0/arnavmd/nlp_proj/DPR/data/data/retriever/nq-dev.json')
     parser.add_argument("--m", help="additional comments", default="")
     parser.add_argument("--world_size", help="world size", default=4)
+    parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
+    parser.add_argument("--top_k", help="for the hard negative sampling ablation", default=1)
     args = parser.parse_args()
 
     LEARNING_RATE = float(args.lr) * float(args.world_size)
@@ -36,6 +38,7 @@ def main():
     print(torch.cuda.is_available())
 
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
+    assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
 
     mp.spawn(train, nprocs=int(args.world_size), args=(args,))
 
@@ -68,8 +71,14 @@ def train(gpu, args):
                                              batch_size=int(args.b)//int(args.world_size),
                                              num_workers=0, pin_memory=True,
                                              sampler=dev_sampler)
+    net = None
+    if args.model == "DISTILBERT":
+        net = DISTILBERT_QA().cuda(gpu)
+    elif args.model == "ROBERTA":
+        net = ROBERTA_QA().cuda(gpu)
+    else:
+        net = BERT_QA().cuda(gpu)
 
-    net = BERT_QA().cuda(gpu)
     model = nn.parallel.DistributedDataParallel(net,
                                                 device_ids=[gpu], 
                                                 find_unused_parameters=True)

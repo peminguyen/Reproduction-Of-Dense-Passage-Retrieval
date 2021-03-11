@@ -23,12 +23,16 @@ def main():
     parser.add_argument("--qa_pair", help="path to qa pair csv")
     parser.add_argument("--world_size", help="world size")
     parser.add_argument("--experiment", help="used to write h5 files")
+    parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
     args = parser.parse_args()
 
     os.environ['MASTER_ADDR'] = '127.0.0.1'
     os.environ['MASTER_PORT'] = '1234'
 
     print(torch.cuda.is_available())
+
+    assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
+    assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
 
     mp.spawn(create_embeddings, nprocs=int(args.world_size), args=(args,))
 
@@ -74,7 +78,13 @@ def create_embeddings(gpu, args):
     # We do the same thing for the questions
     ques_embeddings = np.zeros((0, 769), dtype=np.float32)
 
-    net = BERT_QA()
+    net = None
+    if args.model == "DISTILBERT":
+        net = DISTILBERT_QA().cuda(gpu)
+    elif args.model == "ROBERTA":
+        net = ROBERTA_QA().cuda(gpu)
+    else:
+        net = BERT_QA().cuda(gpu)
 
     # https://stackoverflow.com/a/44319982
     state_dict = torch.load(args.model)

@@ -88,7 +88,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
         normalized_answers = [_normalize_answer(str(answer)) for answer in answer_texts]
 
         # check to see if answer string in any of the passages
-        if any([answer in passage for answer in normalized_answers for passage in normalized_passages]):
+        if any([answer in passage for answer in normalized_answers for passage in normalized_psgs]):
             correct += 1
     
     print(f"top-{k} accuracy is {correct / results.shape[0]}")

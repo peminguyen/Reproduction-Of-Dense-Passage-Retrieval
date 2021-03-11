@@ -8,6 +8,8 @@ import torch.multiprocessing as mp
 import torch.distributed as dist
 import numpy as np
 from collections import OrderedDict
+import glob
+
 
 from model import *
 from utils.wiki_data_loader import *
@@ -18,11 +20,10 @@ from utils.utils import *
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--b", help="batch_size", default="32")
-    parser.add_argument("--model", help="path to pickled model")
     parser.add_argument("--wiki", help="path to wikipedia DB")
     parser.add_argument("--qa_pair", help="path to qa pair csv")
     parser.add_argument("--world_size", help="world size")
-    parser.add_argument("--experiment", help="used to write h5 files")
+    parser.add_argument("--v", help="experiment version")
     parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
     args = parser.parse_args()
 
@@ -87,7 +88,9 @@ def create_embeddings(gpu, args):
         net = BERT_QA().cuda(gpu)
 
     # https://stackoverflow.com/a/44319982
-    state_dict = torch.load(args.model)
+    checkpoints = sorted(glob.glob('./logs/' + args.v  + '/' + '/*.pt'), key=os.path.getmtime)
+
+    state_dict = torch.load(checkpoints[-1])
     new_dict = OrderedDict()
     for k, v in state_dict.items():
         new_key = k[7:]
@@ -131,8 +134,8 @@ def create_embeddings(gpu, args):
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} batches of questions')
 
-    serialize_vectors(psg_embeddings, f"./embeddings/{args.experiment}-psg-{rank}.h5")
-    serialize_vectors(ques_embeddings, f"./embeddings/{args.experiment}-ques-{rank}.h5")
+    serialize_vectors(psg_embeddings, f"./embeddings/{args.v}-psg-{rank}.h5")
+    serialize_vectors(ques_embeddings, f"./embeddings/{args.v}-ques-{rank}.h5")
 
 if __name__ == '__main__':
     main()

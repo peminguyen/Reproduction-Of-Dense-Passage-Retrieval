@@ -77,7 +77,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
 
         # these are the answers pertaining to the current question, indexed off
         # of the *global question index*
-        answer_texts = qa_pair_dataset.df['answers'][i]
+        answer_texts = qa_pair_dataset.df['answer'][i]
         
         # normalize the passages
         normalized_psgs = [_normalize_answer(psg) for psg in psg_texts]

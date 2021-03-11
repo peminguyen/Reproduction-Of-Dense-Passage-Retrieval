@@ -21,8 +21,8 @@ def main():
         passage_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-psg-{i}.h5")))
         question_embeddings.append(deserialize_vectors(f"./embeddings/{args.v}-ques-{i}.h5"))))
     
-    wiki_dataset = WikiDataset(wiki)
-    qa_pair_dataset = QAPairDataset(qa_pair)
+    wiki_dataset = WikiDataset(args.wiki)
+    qa_pair_dataset = QAPairDataset(args.qa_pair)
 
     ks = [20, 100]
     results = []

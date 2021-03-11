@@ -50,13 +50,13 @@ def train(gpu, args):
     print(rank)
     dist.init_process_group(backend='nccl',
                             init_method='env://',
-                            world_size=args.world_size,
+                            world_size=int(args.world_size),
                             rank=rank)
 
 
     train_set = NQDataset(args.train_set, k=int(args.top_k))
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set,
-                                                                    num_replicas=args.world_size,
+                                                                    num_replicas=int(args.world_size),
                                                                     rank=rank)
     train_loader = torch.utils.data.DataLoader(train_set,
                                                batch_size=int(args.b)//int(args.world_size),
@@ -65,7 +65,7 @@ def train(gpu, args):
 
     dev_set = NQDataset(args.dev_set, k=int(args.top_k))
     dev_sampler = torch.utils.data.distributed.DistributedSampler(dev_set,
-                                                                  num_replicas=args.world_size,
+                                                                  num_replicas=int(args.world_size),
                                                                   rank=rank)
     dev_loader = torch.utils.data.DataLoader(dev_set,
                                              batch_size=int(args.b)//int(args.world_size),

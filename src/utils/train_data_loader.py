@@ -47,6 +47,8 @@ class NQDataset(torch.utils.data.Dataset):
 
         return torch.Tensor(ques_token), torch.Tensor(pos_ctx_token), torch.Tensor(hard_neg_ctx_token)
 
+# to test this, you're going to have to move a copy of nq-dev.json into ./test
+
 # train_set = NQDataset(r"../test/nq-dev.json")
 # loader = torch.utils.data.DataLoader(train_set, batch_size=2, shuffle=True)
 

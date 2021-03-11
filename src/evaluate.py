@@ -25,12 +25,14 @@ def main():
     qa_pair_dataset = QAPairDataset(args.qa_pair)
 
     ks = [20, 100]
-    results = []
-    for k_val in ks:
-        result = evaluate_wiki(question_embeddings,
-                               passage_embeddings,
-                               wiki_dataset, qa_pair_dataset, k=k_val)
-        results.append(result)
+    results = evaluate_wiki(question_embeddings,
+                            passage_embeddings,
+                            wiki_dataset, qa_pair_dataset, ks=ks)
     
+    file = open("results.txt", "w")
+    for i in range(len(ks)):
+        file.write(f"Experiment {args.v}: top-{ks[i]} accuracy is {results[i]}\n");
+    
+    file.close()
 if __name__ == '__main__':
     main()

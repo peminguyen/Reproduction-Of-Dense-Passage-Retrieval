@@ -37,7 +37,7 @@ def deserialize_vectors(filename):
 
 # question_embeddings should be a list of matrices each of ~num_questions/world_size x d
 # passage_embeddings should be a list of matrices each of ~num_psgs/world_size x d
-def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, k=100):
+def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, ks=[20, 100]):
     global_passage_embeddings = np.zeros((0, 769), dtype=np.float32)
     global_question_embeddings = np.zeros((0, 769), dtype=np.float32)
 
@@ -66,33 +66,39 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     index = faiss.IndexFlatIP(global_passage_embeddings.shape[1])
     index.add(global_passage_embeddings)
 
-    # results is num_questions x k
-    _, results = index.search(global_question_embeddings, k)
-    
-    correct = 0
-    for i in range(results.shape[0]):
+    # TODO: figure out 8757 vs 8760
+    result_accs = []
 
-        # WikiDataset.df['passage'][results[i, :]] will be a pandas series
-        # object, so we convert to list
-        psg_texts = wiki_dataset.df['passage'][results[i, :]].tolist()
-
-        # these are the answers pertaining to the current question, indexed off
-        # of the *global question index*
-        answer_texts = qa_pair_dataset.df['answer'][i]
+    for k in ks:
+        # results is num_questions x k
+        _, results = index.search(global_question_embeddings, k)
         
-        # normalize the passages
-        normalized_psgs = [_normalize_answer(psg) for psg in psg_texts]
+        correct = 0
+        for i in range(results.shape[0]):
 
-        # normalize the answers. Make sure that pandas didn't do anything weird
-        # with the strings in the answer list and cast them as strings
-        normalized_answers = [_normalize_answer(str(answer)) for answer in answer_texts]
+            # WikiDataset.df['passage'][results[i, :]] will be a pandas series
+            # object, so we convert to list
+            psg_texts = wiki_dataset.df['passage'][results[i, :]].tolist()
 
-        # check to see if answer string in any of the passages
-        if any([answer in passage for answer in normalized_answers for passage in normalized_psgs]):
-            correct += 1
-    
-    print(f"top-{k} accuracy is {correct / results.shape[0]}")
-    return correct / results.shape[0]
+            # these are the answers pertaining to the current question, indexed off
+            # of the *global question index*
+            answer_texts = qa_pair_dataset.df['answer'][i]
+            
+            # normalize the passages
+            normalized_psgs = [_normalize_answer(psg) for psg in psg_texts]
+
+            # normalize the answers. Make sure that pandas didn't do anything weird
+            # with the strings in the answer list and cast them as strings
+            normalized_answers = [_normalize_answer(str(answer)) for answer in answer_texts]
+
+            # check to see if answer string in any of the passages
+            if any([answer in passage for answer in normalized_answers for passage in normalized_psgs]):
+                correct += 1
+        
+        print(f"top-{k} accuracy is {correct / results.shape[0]}")
+        result_accs.append(correct / results.shape[0])
+
+    return result_accs
 
 # np.random.seed(1234)
 # psgs = np.random.random((1000, 100)).astype('float32')

@@ -18,31 +18,35 @@ These are install instructions to get *literally everything* working on a fresh 
 
 This should be cloned in the home directory of your VM.
 
-1. `sudo git clone https://github.com/peminguyen/CSE517-final-project.git`
+1. `git clone https://github.com/peminguyen/CSE517-final-project.git`
 	* We need environment.yml for setting up conda.
 
 2. `cd CSE517-final-project`
 
-3. `sudo mkdir bert-base-uncased; cd bert-base-uncased`
+3. `mkdir bert-base-uncased; cd bert-base-uncased`
  
-4. `sudo wget https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz`
+4. `wget https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz`
 
-5. `sudo tar -xzvf bert-base-uncased.tar.gz`
+5. `tar -xzvf bert-base-uncased.tar.gz`
 
-TODO: pick up distillbert
+6. `cd ..`
+
+7. `mkdir distilbert-base-uncased; cd distilbert-base-uncased`
+
+8. `wget https://s3.amazonaws.com/models.huggingface.co/bert/distilbert-base-uncased.tar.gz`
 
 ### Setting up conda
 
 Starting from your home directory,
 
-1. `sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
+1. `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
 
-2. `sudo bash Miniconda3-latest-Linux-x86_64.sh`
+2. `bash Miniconda3-latest-Linux-x86_64.sh`
 	* Go through the prompts. Leaving everything as defaults should be fine. You should run conda init.
 
-3. `sudo source .bashrc`
+3. `source .bashrc`
 
-4. `sudo conda env create -f CSE517-final-project/environment.yml`
+4. `conda env create -f CSE517-final-project/environment.yml`
 	* There's probably quite a few extraneous packages in this `environment.yml` file, but this is guaranteed to work. Feel free to prune stuff that you find isn't needed, though it'll probably be really time-consuming.
 
 5. `conda activate DPR`
@@ -73,9 +77,7 @@ Start from your home directory.
 
 # Running the Experiments
 
-TODO
-
-Wandb
+bash script
 
 
 https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html

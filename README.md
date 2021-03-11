@@ -21,6 +21,8 @@ This should be cloned in the home directory of your VM.
 1. `git clone https://github.com/peminguyen/CSE517-final-project.git`
 	* We need environment.yml for setting up conda.
 
+Note: from here on out in installation, there is a bash script that runs everything for you in the repository, `init.sh`. Simply move it out to your home directory with `mv CSE517-final-project/init.sh .`.
+
 2. `cd CSE517-final-project`
 
 3. `mkdir bert-base-uncased; cd bert-base-uncased`
@@ -30,10 +32,6 @@ This should be cloned in the home directory of your VM.
 5. `tar -xzvf bert-base-uncased.tar.gz`
 
 6. `cd ..`
-
-7. `mkdir distilbert-base-uncased; cd distilbert-base-uncased`
-
-8. `wget https://s3.amazonaws.com/models.huggingface.co/bert/distilbert-base-uncased.tar.gz`
 
 ### Setting up conda
 
@@ -75,9 +73,11 @@ Start from your home directory.
 
 4. `cd retrieval-based-baselines; python3 filter_subset_wiki.py --db_path ~/downloads/data/wikipedia_split/psgs_w100.tsv --data_path ~/downloads/data/retriever/nq-train.json`
 
+TODO: wandb login
+
 # Running the Experiments
 
-bash script
+training.sh
 
 
 https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html

@@ -74,7 +74,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
         _, results = index.search(global_question_embeddings, k)
         
         correct = 0
-        for i in range(results.shape[0]):
+        for i in range(len(qa_pair_dataset)): #results.shape[0]):
 
             # WikiDataset.df['passage'][results[i, :]] will be a pandas series
             # object, so we convert to list

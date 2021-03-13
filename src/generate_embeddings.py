@@ -24,7 +24,7 @@ def main():
     parser.add_argument("--qa_pair", help="path to qa pair csv")
     parser.add_argument("--world_size", help="world size")
     parser.add_argument("--v", help="experiment version")
-    parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
+    parser.add_argument("--model", help="DISTILBERT or BERT", default="BERT")
     args = parser.parse_args()
 
     os.environ['MASTER_ADDR'] = '127.0.0.1'
@@ -39,7 +39,7 @@ def main():
     print(torch.cuda.is_available())
 
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
-    assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
+    assert args.model == "DISTILBERT" or args.model == "BERT"
 
     mp.spawn(create_embeddings, nprocs=int(args.world_size), args=(args,))
 
@@ -88,8 +88,6 @@ def create_embeddings(gpu, args):
     net = None
     if args.model == "DISTILBERT":
         net = DISTILBERT_QA().cuda(gpu)
-    elif args.model == "ROBERTA":
-        net = ROBERTA_QA().cuda(gpu)
     else:
         net = BERT_QA().cuda(gpu)
 

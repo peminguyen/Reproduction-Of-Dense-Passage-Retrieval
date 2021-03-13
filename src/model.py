@@ -8,7 +8,6 @@ import torch.optim as optim
 import sys
 from transformers import BertTokenizer, BertModel, BertForMaskedLM  
 from transformers import DistilBertTokenizer, DistilBertModel
-from transformers import RobertaTokenizer, RobertaModel
 
 class BERT_QA(nn.Module):
     def __init__(self, tokenizer=BertTokenizer.from_pretrained('bert-base-uncased')):

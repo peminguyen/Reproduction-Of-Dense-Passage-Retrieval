@@ -117,9 +117,10 @@ def train(gpu, args):
         if epoch == 2:
             break
 
-    print(list1[0][0] == list1[1][0])
-    print(list1[1][0] == list1[2][0])
-    print(list1[2][0])
+    if rank == 0:
+        print(list1[0][0:4])
+        print(list1[1][0:4])
+        print(list1[2][0:4])
 
 if __name__ == '__main__':
     main()

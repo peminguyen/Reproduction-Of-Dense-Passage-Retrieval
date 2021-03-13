@@ -77,6 +77,9 @@ def train(gpu, args):
     warmup_counter = 0
     list1 = []
     for epoch in range(int(args.e)):
+        if int(args.world_size) > 1:
+            train_sampler.set_epoch(int(args.shuffle_seed) + epoch)
+    
         list1.append([])
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(train_loader):
             ques = ques.long().cuda(non_blocking=True)
@@ -86,9 +89,10 @@ def train(gpu, args):
             break
 
     if rank == 0:
-        print(list1[0][0:4])
-        print(list1[1][0:4])
-        print(list1[2][0:4])
+        print(list1[0][0])
+        print(list1[1][0])
+        print(list1[2][0])
+        print(list1[0][0] == list1[1][0])
 
 if __name__ == '__main__':
     main()

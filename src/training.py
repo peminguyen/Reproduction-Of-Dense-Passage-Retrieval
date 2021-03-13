@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--world_size", help="world size", default=4)
     parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
     parser.add_argument("--top_k", help="for the hard negative sampling ablation", default=1)
+    parser.add_argument("--seed", help="init seed", default=12345)
+    parser.add_argument("--shuffle_seed", help="shuffle seed", default=1179493354)
     args = parser.parse_args()
 
     LEARNING_RATE = float(args.lr) * float(args.world_size)
@@ -40,11 +42,11 @@ def main():
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
     assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
 
+    torch.manual_seed(int(args.seed))
     mp.spawn(train, nprocs=int(args.world_size), args=(args,))
 
 def train(gpu, args):
 
-    torch.manual_seed(0)
     rank = gpu
     torch.cuda.set_device(rank)
     print(rank)
@@ -111,6 +113,7 @@ def train(gpu, args):
     for epoch in range(int(args.e)):
 
         print("="*10 + "Epoch " + str(epoch) + "="*10)
+        train_sampler.set_epoch(epoch + int(args.shuffle_seed))
         losses = []
         model.train()
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(train_loader):

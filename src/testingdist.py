@@ -69,6 +69,7 @@ def train(gpu, args):
     dev_loader = torch.utils.data.DataLoader(dev_set,
                                              batch_size=int(args.b)//int(args.world_size),
                                              num_workers=0, pin_memory=True,
+                                             sampler=dev_sampler)
     
 
     print(rank)

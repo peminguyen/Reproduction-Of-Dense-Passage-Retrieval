@@ -69,40 +69,7 @@ def train(gpu, args):
     dev_loader = torch.utils.data.DataLoader(dev_set,
                                              batch_size=int(args.b)//int(args.world_size),
                                              num_workers=0, pin_memory=True,
-                                             sampler=dev_sampler)
-    net = None
-    if args.model == "DISTILBERT":
-        net = DISTILBERT_QA().cuda(gpu)
-    elif args.model == "ROBERTA":
-        net = ROBERTA_QA().cuda(gpu)
-    else:
-        net = BERT_QA().cuda(gpu)
-
-    model = nn.parallel.DistributedDataParallel(net,
-                                                device_ids=[gpu], 
-                                                find_unused_parameters=True)
-    print("Downloaded models")
-
-    LOG_PATH = './logs/' + args.v  + '/'
-    LEARNING_RATE = float(args.lr)
-
-    if os.path.exists(LOG_PATH):
-        restore_latest(model, LOG_PATH)
-    else:
-        os.makedirs(LOG_PATH)
-
-    with open(os.path.join(LOG_PATH, 'setup.txt'), 'a+') as f:
-        f.write("\nVersion: " + args.v)
-        f.write("\nBatch Size: " + args.b)
-        f.write("\nInitial Learning Rate: " + args.lr)
-        f.write("\nTraining Set: " + args.train_set)
-        f.write("\nValidation Set: " + args.dev_set)
-        f.write("\nComments: " + args.m)
-
-    log_interval = 20
-    max_score = -1
-    train_log = os.path.join(LOG_PATH, 'train_log.txt')
-    dev_log = os.path.join(LOG_PATH, 'dev_log.txt')
+    
 
     print(rank)
 

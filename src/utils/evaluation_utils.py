@@ -66,7 +66,7 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     index = faiss.IndexFlatIP(global_passage_embeddings.shape[1])
     index.add(global_passage_embeddings)
 
-    # TODO: figure out 8757 vs 8760
+    # TODO: figure out 8757 vs 8760 (len(qa_pair_dataset) vs results.shape[0])
     result_accs = []
 
     for k in ks:

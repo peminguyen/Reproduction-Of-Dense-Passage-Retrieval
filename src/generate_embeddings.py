@@ -9,6 +9,7 @@ import torch.distributed as dist
 import numpy as np
 from collections import OrderedDict
 import glob
+import os
 
 
 from model import *
@@ -109,8 +110,6 @@ def create_embeddings(gpu, args):
 
     print("==========embedding the passages==========")
     for batch_idx, (passage, psg_indices) in enumerate(wiki_loader):
-        if batch_idx > 1000:
-            break
 
         with torch.no_grad():
             passage = passage.long().cuda(non_blocking=True)

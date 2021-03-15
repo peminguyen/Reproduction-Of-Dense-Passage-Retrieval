@@ -25,7 +25,7 @@ def main():
     wiki_dataset = WikiDataset(args.wiki)
     qa_pair_dataset = QAPairDataset(args.qa_pair)
 
-    ks = [20, 100]
+    ks = [5, 20, 100, 500, 2000]
     results = evaluate_wiki(question_embeddings,
                             passage_embeddings,
                             wiki_dataset, qa_pair_dataset, ks=ks)

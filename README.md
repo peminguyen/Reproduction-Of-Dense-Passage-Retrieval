@@ -79,6 +79,8 @@ Start from your home directory.
 
 Run the shell script `training.sh`. **Warning**: This shell script was not tested. We ultimately were not allowed to rent out a powerful-enough GPU-enabled machine on either Azure or GCP, so we never fully ran this shell script. The content is correct; the directories may not be.
 
+Note: There are some commented out portions of code that you can hook up to [Weights and Biases](https://wandb.ai/site).
+
 ### Useful links
 
 * For getting a distributed version of our model up and running, we followed [this tutorial](https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.).

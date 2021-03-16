@@ -38,10 +38,10 @@ def main():
     
     file = open(f"./results/results-{args.v}.txt", "a")
     file.write(f"Experiment Version | Top-K | Accuracy\n")
-    
+
     for i in range(len(ks)):
         # experiment version | top-k | accuracy
-        file.write(f"{args.v} {ks[i]} {results[i]}\n")
+        file.write(f"{args.v}\t{ks[i]}\t{results[i]}\n")
     
     file.close()
 if __name__ == '__main__':

@@ -21,7 +21,9 @@ def main():
     experiment = None
     x = []
     y = []
-    for line in results_file:
+    for (i, line) in enumerate(results_file):
+        if i == 0:
+            continue
         nums = line.split()
         experiment = nums[0]
         x.append(int(nums[1]))

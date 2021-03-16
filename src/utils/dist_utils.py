@@ -149,7 +149,7 @@ def calc_loss(rank, model, local_q_vector, local_ctx_vectors):
 
     sim, idx  = model.get_sim(global_q_vector, global_ctxs_vector)
     loss = model.loss_fn(sim, idx)
-    #print(sim.shape)
+    # print(sim.shape)
     return loss
 
 

@@ -8,6 +8,7 @@ from transformers import BertTokenizer, BertModel, BertForMaskedLM
 class WikiDataset(torch.utils.data.Dataset):
     def __init__(self, path):
         
+        # psgs_w100.tsv or psgs_w100_subset.tsv
         # There's an article with the title "NaN" that gets parsed to a float...
         self.df = pd.read_csv(path, sep='\t',
                               names=['junk', 'passage', 'title'],

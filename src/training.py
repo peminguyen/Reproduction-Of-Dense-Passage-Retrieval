@@ -158,7 +158,7 @@ def train(gpu, args):
             optimizer.step()
 
             if batch_idx % log_interval == 0:
-                #if rank == 0:
+                # if rank == 0:
                 #    wandb.log({'train_loss': loss.item()})
 
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -196,7 +196,7 @@ def train(gpu, args):
             min_loss = np.mean(dev_scores)
             save(model, os.path.join(LOG_PATH, '%03d.pt' % epoch), num_to_keep=1)
 
-        #if rank == 0:
+        # if rank == 0:
         #    wandb.log({'val_loss': np.mean(dev_losses)})
         #    wandb.log({'val_acc': np.mean(dev_scores)})
         with open(dev_log, 'a+') as f:

@@ -9,6 +9,7 @@ import random
 class NQDataset(torch.utils.data.Dataset):
     def __init__(self, path, k=1):
 
+        # nq-train.json and nq-dev.json
         self.df = pd.read_json(path)
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.k = k

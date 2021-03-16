@@ -60,6 +60,8 @@ def create_embeddings(gpu, args):
 
     # create wikipedia loader (it returns tokenized passages)
     wiki_set = WikiDataset(args.wiki)
+    
+    # refer below for explanation of drop_last = True
     wiki_sampler = torch.utils.data.distributed.DistributedSampler(wiki_set, 
                                                                    num_replicas=args.world_size,
                                                                    rank=rank, shuffle=False, 
@@ -73,7 +75,7 @@ def create_embeddings(gpu, args):
     qa_pair_set = QAPairDataset(args.qa_pair)
     
     # Note drop_last=True. This is *absolutely necessary* for our code to
-    # function properly: we do some hacky stuff related to question indices
+    # function properly: we do some hacky stuff related to question/psg indices
     # later in `evaluate.py` and `evaluation_utils.py`. If our world size is 4,
     # we're cutting off at maximum the last 3 questions in our dev and test
     # sets when we evaluate (if you don't add this, then the DistributedSampler
@@ -104,9 +106,9 @@ def create_embeddings(gpu, args):
     else:
         net = BERT_QA().cuda(gpu)
 
-    # https://stackoverflow.com/a/44319982
     checkpoints = sorted(glob.glob('./logs/' + args.v  + '/' + '/*.pt'), key=os.path.getmtime)
 
+    # https://stackoverflow.com/a/44319982
     state_dict = torch.load(checkpoints[-1])
     new_dict = OrderedDict()
     for k, v in state_dict.items():
@@ -127,10 +129,12 @@ def create_embeddings(gpu, args):
             _, p_emb = model(None, passage)
             
             np_psg_indices = np.expand_dims(psg_indices.numpy(), axis=1)
-            #print(np_psg_indices)
+            # print(np_psg_indices)
+
             p_emb = p_emb.detach().cpu().numpy()
             p_emb = np.concatenate((np_psg_indices, p_emb), axis=1)
-            #print(type(p_emb[0][0]))
+            # print(type(p_emb[0][0]))
+
             psg_embeddings = np.concatenate((psg_embeddings, p_emb), axis=0)
 
             if batch_idx % log_interval == 0:
@@ -152,8 +156,8 @@ def create_embeddings(gpu, args):
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} batches of questions')
 
-    #serialize_vectors(f"./embeddings/{args.v}-psg-{rank}.h5", psg_embeddings)
-    #serialize_vectors(f"./embeddings/{args.v}-ques-{rank}.h5", ques_embeddings)
+    serialize_vectors(f"./embeddings/{args.v}-psg-{rank}.h5", psg_embeddings)
+    serialize_vectors(f"./embeddings/{args.v}-ques-{rank}.h5", ques_embeddings)
 
 if __name__ == '__main__':
     main()

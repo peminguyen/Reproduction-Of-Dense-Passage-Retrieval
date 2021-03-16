@@ -5,6 +5,7 @@ import pandas as pd
 import faiss
 import regex as re
 import string
+import random
 
 # from Facebook/DPR repo (Karpukhin et al, EMNLP 2020)
 def _normalize_answer(s):
@@ -40,13 +41,14 @@ def deserialize_vectors(filename):
 def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, ks=[20, 100]):
     global_passage_embeddings = np.zeros((0, 769), dtype=np.float32)
     global_question_embeddings = np.zeros((0, 769), dtype=np.float32)
-
+   
     print(passage_embeddings[0].shape)
     for passage_embedding in passage_embeddings:
         global_passage_embeddings = np.concatenate((global_passage_embeddings,
                                                     passage_embedding), axis=0)
-    
+          
     for question_embedding in question_embeddings:
+        print(question_embedding.shape)
         global_question_embeddings = np.concatenate((global_question_embeddings,
                                                   question_embedding), axis=0)
     
@@ -65,14 +67,17 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
 
     index = faiss.IndexFlatIP(global_passage_embeddings.shape[1])
     index.add(global_passage_embeddings)
-
+    
+    idx_print = random.randint(0,1000)
+    print(len(qa_pair_dataset))
+    print(global_question_embeddings.shape)
     # TODO: figure out 8757 vs 8760
     result_accs = []
 
     for k in ks:
         # results is num_questions x k
         _, results = index.search(global_question_embeddings, k)
-        
+        print(results.shape) 
         correct = 0
         for i in range(len(qa_pair_dataset)): #results.shape[0]):
 
@@ -90,14 +95,27 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
             # normalize the answers. Make sure that pandas didn't do anything weird
             # with the strings in the answer list and cast them as strings
             normalized_answers = [_normalize_answer(str(answer)) for answer in answer_texts]
-
+            #if idx_print == i:
+            #    print(qa_pair_dataset.df['question'][i])
+            #    for psg in normalized_psgs:
+            #        print(psg)
+            #    print("\n\n\n")
+            #    print(normalized_answers)
             # check to see if answer string in any of the passages
             if any([answer in passage for answer in normalized_answers for passage in normalized_psgs]):
                 correct += 1
-        
+                #print("Correct")
+                #print(i)
+               
+                #print(qa_pair_dataset.df['question'][i])
+                #for psg in normalized_psgs:
+                #    print(psg)
+                #print("\n\n\n")
+                #print(normalized_answers)
+            # c
+
         print(f"top-{k} accuracy is {correct / results.shape[0]}")
         result_accs.append(correct / results.shape[0])
-
     return result_accs
 
 # np.random.seed(1234)

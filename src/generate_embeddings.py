@@ -61,21 +61,23 @@ def create_embeddings(gpu, args):
     wiki_set = WikiDataset(args.wiki)
     wiki_sampler = torch.utils.data.distributed.DistributedSampler(wiki_set, 
                                                                    num_replicas=args.world_size,
-                                                                   rank=rank)
+                                                                   rank=rank, shuffle=False, 
+                                                                   drop_last=True)
     wiki_loader = torch.utils.data.DataLoader(wiki_set,
                                               batch_size=int(args.b)//int(args.world_size),
                                               pin_memory=True,
-                                              sampler=wiki_sampler)
+                                              sampler=wiki_sampler, shuffle=False)
 
     # create questions loader (it returns tokenized questions)
     qa_pair_set = QAPairDataset(args.qa_pair)
     qa_pair_sampler = torch.utils.data.distributed.DistributedSampler(qa_pair_set,
                                                                       num_replicas=args.world_size,
-                                                                      rank=rank)
+                                                                      rank=rank, shuffle=False,
+                                                                      drop_last=True)
     qa_pair_loader = torch.utils.data.DataLoader(qa_pair_set,
                                                  batch_size=int(args.b)//int(args.world_size),
                                                  pin_memory=True,
-                                                 sampler=qa_pair_sampler)
+                                                 sampler=qa_pair_sampler, shuffle=False)
 
     # concatenate the indices:
     # index 0: *global* index of the passage in the wikipedia database
@@ -111,17 +113,16 @@ def create_embeddings(gpu, args):
 
     print("==========embedding the passages==========")
     for batch_idx, (passage, psg_indices) in enumerate(wiki_loader):
-        if batch_idx > 1000:
-            break
-
+        break
         with torch.no_grad():
             passage = passage.long().cuda(non_blocking=True)
-
             _, p_emb = model(None, passage)
             
             np_psg_indices = np.expand_dims(psg_indices.numpy(), axis=1)
+            #print(np_psg_indices)
             p_emb = p_emb.detach().cpu().numpy()
             p_emb = np.concatenate((np_psg_indices, p_emb), axis=1)
+            #print(type(p_emb[0][0]))
             psg_embeddings = np.concatenate((psg_embeddings, p_emb), axis=0)
 
             if batch_idx % log_interval == 0:
@@ -143,8 +144,8 @@ def create_embeddings(gpu, args):
             if batch_idx % log_interval == 0:
                 print(f'Embedded {batch_idx} batches of questions')
 
-    serialize_vectors(f"./embeddings/{args.v}-psg-{rank}.h5", psg_embeddings)
-    serialize_vectors(f"./embeddings/{args.v}-ques-{rank}.h5", ques_embeddings)
+    #serialize_vectors(f"./embeddings/{args.v}-psg-{rank}.h5", psg_embeddings)
+    #serialize_vectors(f"./embeddings/{args.v}-ques-{rank}.h5", ques_embeddings)
 
 if __name__ == '__main__':
     main()

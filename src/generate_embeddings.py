@@ -71,6 +71,16 @@ def create_embeddings(gpu, args):
 
     # create questions loader (it returns tokenized questions)
     qa_pair_set = QAPairDataset(args.qa_pair)
+    
+    # Note drop_last=True. This is *absolutely necessary* for our code to
+    # function properly: we do some hacky stuff related to question indices
+    # later in `evaluate.py` and `evaluation_utils.py`. If our world size is 4,
+    # we're cutting off at maximum the last 3 questions in our dev and test
+    # sets when we evaluate (if you don't add this, then the DistributedSampler
+    # acts like a loop of data, and if your data set length is not divisble by
+    # the world size, the last batches will loop around and give you extra
+    # samples from the beginning. EX: world size 4, batch size = 1, n = 14: the
+    # last iteration will distribute out questions 13, 14, 1, and 2 [1-indexed])
     qa_pair_sampler = torch.utils.data.distributed.DistributedSampler(qa_pair_set,
                                                                       num_replicas=args.world_size,
                                                                       rank=rank, shuffle=False,

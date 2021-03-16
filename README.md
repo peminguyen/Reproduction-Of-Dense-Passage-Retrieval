@@ -2,6 +2,10 @@
 
 This is a project that attempts to reproduce and verify the main claims of ["Dense Passage Retrieval for Open-Domain Question Answering"](https://arxiv.org/pdf/2004.04906.pdf) (Karpukhin et al., EMNLP 2020) with the final report following the format of submissions to the [ML Reproducibility Challenge](https://paperswithcode.com/rc2020). This project was done as a final project for [CSE 517 wi21](https://docs.google.com/document/d/1gBz2w79DBrGjNGq2TMqJBDIWzUGsQacWFAszZKz6OKI/edit), taught by Prof. Noah Smith.
 
+# Dependencies
+
+TODO
+
 # Installation and Setup
 
 ~~These are install instructions to get everything working on a fresh VM. The VM we used ran Debian GNU/Linux 10 (buster) as its OS, and in particular, we used an A2 machine with 4 Tesla A100s on Google Cloud Platform to reproduce selected results of the paper. As a warning, this paper's results (and subsequently the scripts included in this repository) *are expensive to run and reproduce*; we used roughly $___ worth of Google Cloud Platform credits to reproduce *selected, not all*, results in the original paper.~~ 
@@ -88,6 +92,7 @@ If you're not using the shell script, once you have the data, the order of the e
 3. `evaluate.py`
 4. `plot.py`
 
+TODO: replace above with commands (though it should be self-explanatory if you look at the argparses...)
 ### Useful links/credits
 
 * For getting a distributed version of our model up and running, we followed [this tutorial](https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.).

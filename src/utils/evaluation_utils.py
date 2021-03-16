@@ -5,6 +5,7 @@ import pandas as pd
 import faiss
 import regex as re
 import string
+import random
 
 # from Facebook/DPR repo (Karpukhin et al, EMNLP 2020)
 def _normalize_answer(s):
@@ -40,13 +41,13 @@ def deserialize_vectors(filename):
 def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair_dataset, ks=[20, 100]):
     global_passage_embeddings = np.zeros((0, 769), dtype=np.float32)
     global_question_embeddings = np.zeros((0, 769), dtype=np.float32)
-
-    print(passage_embeddings[0].shape)
+   
     for passage_embedding in passage_embeddings:
         global_passage_embeddings = np.concatenate((global_passage_embeddings,
                                                     passage_embedding), axis=0)
-    
+          
     for question_embedding in question_embeddings:
+        print(question_embedding.shape)
         global_question_embeddings = np.concatenate((global_question_embeddings,
                                                   question_embedding), axis=0)
     
@@ -62,19 +63,20 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
     # embedding
     global_passage_embeddings = np.ascontiguousarray(global_passage_embeddings[:, 1:])
     global_question_embeddings = np.ascontiguousarray(global_question_embeddings[:, 1:])
+    print(global_passage_embeddings.shape)
+    print(global_question_embeddings.shape)
 
     index = faiss.IndexFlatIP(global_passage_embeddings.shape[1])
     index.add(global_passage_embeddings)
 
-    # TODO: figure out 8757 vs 8760 (len(qa_pair_dataset) vs results.shape[0])
     result_accs = []
 
     for k in ks:
         # results is num_questions x k
         _, results = index.search(global_question_embeddings, k)
-        
+        print(results.shape) 
         correct = 0
-        for i in range(len(qa_pair_dataset)): #results.shape[0]):
+        for i in range(results.shape[0]):
 
             # WikiDataset.df['passage'][results[i, :]] will be a pandas series
             # object, so we convert to list
@@ -94,12 +96,13 @@ def evaluate_wiki(question_embeddings, passage_embeddings, wiki_dataset, qa_pair
             # check to see if answer string in any of the passages
             if any([answer in passage for answer in normalized_answers for passage in normalized_psgs]):
                 correct += 1
-        
+
         print(f"top-{k} accuracy is {correct / results.shape[0]}")
         result_accs.append(correct / results.shape[0])
-
     return result_accs
 
+
+# ====testing=====
 # np.random.seed(1234)
 # psgs = np.random.random((1000, 100)).astype('float32')
 # questions = np.random.random((15, 100)).astype('float32')

@@ -34,7 +34,7 @@ class NQDataset(torch.utils.data.Dataset):
         if len(self.df['hard_negative_ctxs'][index]) != 0:
             if self.k == 1:
                 hard_neg_ctx = self.df['hard_negative_ctxs'][index][0]
-             else:
+            else:
                 N = len(self.df['hard_negative_ctxs'][index])
                 sample = random.randint(0, min(self.k,N - 1))
                 hard_neg_ctx = self.df['hard_negative_ctxs'][index][sample]

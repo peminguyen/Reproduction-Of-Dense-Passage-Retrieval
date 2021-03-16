@@ -1,3 +1,8 @@
+# This file was used to test distributed data parallel stuff
+# It was run in the src directory, but moved here as to not clutter the
+# directory up
+
+
 #!/x0/arnavmd/python3/bin/python3
 import torch
 import torch.nn as nn

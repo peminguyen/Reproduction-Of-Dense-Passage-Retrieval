@@ -79,6 +79,6 @@ Run the shell script `training.sh`. **Warning**: This shell script was not teste
 
 ### Useful links
 
-* For getting a distributed version of our model up and running, we followed [https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html](this tutorial). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.)
+* For getting a distributed version of our model up and running, we followed [this tutorial](https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.).
 
 

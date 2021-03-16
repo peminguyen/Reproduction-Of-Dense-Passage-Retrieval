@@ -1,3 +1,8 @@
+# This file was used to test distributed data parallel stuff
+# It was run in the src directory, but moved here as to not clutter the
+# directory up
+
+
 #!/x0/arnavmd/python3/bin/python3
 import torch
 import torch.nn as nn
@@ -23,7 +28,7 @@ def main():
     parser.add_argument("--dev_set", help="path to training dataset (h5 file)", default='/x0/arnavmd/nlp_proj/DPR/data/data/retriever/nq-dev.json')
     parser.add_argument("--m", help="additional comments", default="")
     parser.add_argument("--world_size", help="world size", default=4)
-    parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
+    parser.add_argument("--model", help="DISTILBERT or BERT", default="BERT")
     parser.add_argument("--top_k", help="for the hard negative sampling ablation", default=1)
     parser.add_argument("--shuffle_seed", help="needed for shuffling from epoch to epoch", default=1179493354)
     args = parser.parse_args()
@@ -37,7 +42,7 @@ def main():
     print(torch.cuda.is_available())
 
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
-    assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
+    assert args.model == "DISTILBERT" or args.model == "BERT"
 
     mp.spawn(train, nprocs=int(args.world_size), args=(args,))
 

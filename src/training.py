@@ -25,10 +25,10 @@ def main():
     parser.add_argument("--dev_set", help="path to training dataset (h5 file)", default='/x0/arnavmd/nlp_proj/DPR/data/data/retriever/nq-dev.json')
     parser.add_argument("--m", help="additional comments", default="")
     parser.add_argument("--world_size", help="world size", default=4)
-    parser.add_argument("--model", help="DISTILBERT, ROBERTA, or BERT", default="BERT")
+    parser.add_argument("--model", help="DISTILBERT or BERT", default="BERT")
     parser.add_argument("--top_k", help="for the hard negative sampling ablation", default=1)
     parser.add_argument("--seed", help="init seed", default=12345)
-    parser.add_argument("--shuffle_seed", help="shuffle seed", default=1179493354)
+    # parser.add_argument("--shuffle_seed", help="shuffle seed", default=1179493354)
     args = parser.parse_args()
 
     LEARNING_RATE = float(args.lr) * float(args.world_size)
@@ -40,7 +40,7 @@ def main():
     print(torch.cuda.is_available())
 
     assert int(args.b) % int(args.world_size) == 0, "batch size must be divisible by world size"
-    assert args.model == "DISTILBERT" or args.model == "ROBERTA" or args.model == "BERT"
+    assert args.model == "DISTILBERT" or args.model == "BERT"
 
     torch.manual_seed(int(args.seed))
     mp.spawn(train, nprocs=int(args.world_size), args=(args,))
@@ -76,8 +76,6 @@ def train(gpu, args):
     net = None
     if args.model == "DISTILBERT":
         net = DISTILBERT_QA().cuda(gpu)
-    elif args.model == "ROBERTA":
-        net = ROBERTA_QA().cuda(gpu)
     else:
         net = BERT_QA().cuda(gpu)
 
@@ -113,7 +111,16 @@ def train(gpu, args):
     for epoch in range(int(args.e)):
 
         print("="*10 + "Epoch " + str(epoch) + "="*10)
-        train_sampler.set_epoch(epoch + int(args.shuffle_seed))
+        
+        # Since our task is constrastive, we *need* batches to be random across
+        # epochs because otherwise we have the same in-batch negatives for every
+        # question; this makes our model generalize terribly. We assumed that
+        # DistributedDataSampler would do this automatically for us, but we got
+        # 33% top-100 accuracy on a 40 epoch batch size 32 model which is what
+        # caused us to take a second look here. The PyTorch documentation is
+        # suboptimal.
+        if int(args.world_size) > 1:
+            train_sampler.set_epoch(epoch)  # shuffle seed perhaps?
         losses = []
         model.train()
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(train_loader):

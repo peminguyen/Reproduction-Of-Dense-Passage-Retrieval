@@ -21,7 +21,7 @@ do
   ((VERSION++))
 done
 
-for m in "BERT" "DISTILBERT" "ROBERTA"
+for m in "BERT" "DISTILBERT"
 do
   echo $VERSION
   $MY_PYTHON training.py --b $BATCH --e $EPOCH --lr $LR --train_set $TRAINING_DATA --dev_set $DEV_DATA --world_size $WORLD_SIZE --v $VERSION --model $m --top_k 1

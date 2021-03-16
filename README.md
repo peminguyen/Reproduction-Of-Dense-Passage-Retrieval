@@ -77,7 +77,7 @@ Start from your home directory.
 
 # Running the Experiments
 
-Run the shell script `training.sh`. **Warning**: This shell script was not tested. We ultimately were not allowed to rent out a powerful-enough GPU-enabled machine on either Azure or GCP, so we never fully ran this shell script. The content is correct; the directories may not be.
+Run the shell script `training.sh`. **Warning**: This shell script was not tested. We ultimately were not allowed to rent out a powerful-enough GPU-enabled machine on either Azure or GCP, so we never fully ran this shell script. The content is correct; the directories may not be. It's also probably a little bit outdated.
 
 Note: There are some commented out portions of code in `training.py` that you can hook up to [Weights and Biases](https://wandb.ai/site).
 

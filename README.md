@@ -4,7 +4,7 @@ This is a project that attempts to reproduce and verify the main claims of ["Den
 
 # Installation and Setup
 
-These are install instructions to get *literally everything* working on a fresh VM. The VM we used ran Debian GNU/Linux 10 (buster) as its OS, and in particular, we used an A2 machine with 4 Tesla A100s on Google Cloud Platform to reproduce selected results of the paper. As a warning, this paper's results (and subsequently the scripts included in this repository) *are expensive to run and reproduce*; we used roughly $___ worth of Google Cloud Platform credits to reproduce *selected, not all*, results in the original paper.
+--These are install instructions to get everything working on a fresh VM. The VM we used ran Debian GNU/Linux 10 (buster) as its OS, and in particular, we used an A2 machine with 4 Tesla A100s on Google Cloud Platform to reproduce selected results of the paper. As a warning, this paper's results (and subsequently the scripts included in this repository) *are expensive to run and reproduce*; we used roughly $___ worth of Google Cloud Platform credits to reproduce *selected, not all*, results in the original paper.-- **Warning**: These installation instructions were not tested. We ultimately were not allowed to rent out a powerful-enough GPU-enabled machine on either Azure or GCP. The content is correct; the directories may not be.
 
 ### Install git
 
@@ -71,12 +71,14 @@ Start from your home directory.
 
 4. `cd retrieval-based-baselines; python3 filter_subset_wiki.py --db_path ~/downloads/data/wikipedia_split/psgs_w100.tsv --data_path ~/downloads/data/retriever/nq-train.json`
 
-TODO: wandb login
+
 
 # Running the Experiments
 
-training.sh
+Run the shell script `training.sh`. **Warning**: This shell script was not tested. We ultimately were not allowed to rent out a powerful-enough GPU-enabled machine on either Azure or GCP, so we never fully ran this shell script. The content is correct; the directories may not be.
 
+### Useful links
 
-https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html
+* For getting a distributed version of our model up and running, we followed [https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html](this tutorial). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.)
+
 

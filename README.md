@@ -93,9 +93,15 @@ If you're not using the shell script, once you have the data, the order of the e
 4. `plot.py`
 
 TODO: replace above with commands (though it should be self-explanatory if you look at the argparses...)
+
+# Experimental Results
+
+TODO
+
 ### Useful links/credits
 
 * For getting a distributed version of our model up and running, we followed [this tutorial](https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html). There are some extra things that we needed to pay extra attention to--DDP is very finicky and the paper is very particular about how training should be set up (which is probably why they do not use any of the built-in PyTorch classes and instead implement their own DataIterators, etc.).
 
 * The [DPR repository](https://github.com/facebookresearch/DPR) and the [retrieval-based baselines repository](https://github.com/efficientqa/retrieval-based-baselines).
+
 

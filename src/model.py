@@ -26,6 +26,9 @@ class BERT_QA(nn.Module):
 
     def forward(self,x_q, x_p):
         if x_q != None:
+            # For BERT in Huggingface, the 1-indexed item in the output tuple is
+            # actually the embedding of the [CLS] (classification) token for
+            # each question in the batch. They make it easy.
             x_q = self.bert_q(x_q)[1]  
             x_q = x_q.view(-1, 768)
 
@@ -70,11 +73,18 @@ class DISTILBERT_QA(nn.Module):
 
     def forward(self,x_q, x_p):
         if x_q != None:
-            x_q = self.bert_q(x_q)[1]  
+            # For DistilBERT, however, they don't make it as easy. If our
+            # (in-GPU) batch size is 8, then the 0-indexed item in the output
+            # tuple is the tensor of all of the outputs, so in the case of our
+            # questions (which have input length 64 [`train_data_loader.py`]),
+            # our shape is [8, 64, 768] since BERT embeds in 768 dimensions. We
+            # then want to pull out the embedding for the [CLS] token--this is
+            # always located at the beginning of our tokenized question.
+            x_q = self.bert_q(x_q)[0][:, 0, :]  
             x_q = x_q.view(-1, 768)
 
         if x_p != None:
-            x_p = self.bert_p(x_p)[1] 
+            x_p = self.bert_p(x_p)[0][:, 0, :]
             x_p = x_p.view(-1, 768)
 
         return (x_q, x_p)

@@ -112,15 +112,16 @@ def train(gpu, args):
 
         print("="*10 + "Epoch " + str(epoch) + "="*10)
         
-        # Since our task is constrastive, we *need* batches to be random across
+        # Since our task is contrastive, we *need* batches to be random across
         # epochs because otherwise we have the same in-batch negatives for every
         # question; this makes our model generalize terribly. We assumed that
         # DistributedDataSampler would do this automatically for us, but we got
         # 33% top-100 accuracy on a 40 epoch batch size 32 model which is what
-        # caused us to take a second look here. The PyTorch documentation is
-        # suboptimal.
+        # caused us to take a second look here. It turns out you *need* to
+        # set epoch here in order to guarantee that batches are different from
+        # epoch to epoch
         if int(args.world_size) > 1:
-            train_sampler.set_epoch(epoch)  # shuffle seed perhaps?
+            train_sampler.set_epoch(epoch)
         losses = []
         model.train()
         for batch_idx, (ques, pos_ctx, neg_ctx) in enumerate(train_loader):

@@ -16,6 +16,12 @@ def main():
     args = parser.parse_args()
 
     args.world_size = int(args.world_size)
+
+    if os.path.exists('./results/'):
+        pass
+    else:
+        os.makedirs('./results/')
+    
     passage_embeddings = []
     question_embeddings = []
     for i in range(args.world_size):
@@ -25,14 +31,15 @@ def main():
     wiki_dataset = WikiDataset(args.wiki)
     qa_pair_dataset = QAPairDataset(args.qa_pair)
 
-    ks = [5, 20, 100, 500, 2000]
+    ks = [1, 5, 20, 100, 500, 2000, 10000]
     results = evaluate_wiki(question_embeddings,
                             passage_embeddings,
                             wiki_dataset, qa_pair_dataset, ks=ks)
     
-    file = open("results.txt", "a")
+    file = open(f"./results/results-{args.v}.txt", "a")
     for i in range(len(ks)):
-        file.write(f"Experiment {args.v}: top-{ks[i]} accuracy is {results[i]}\n");
+        # experiment version | top-k | accuracy
+        file.write(f"{args.v} {ks[i]} {results[i]}\n");
     
     file.close()
 if __name__ == '__main__':

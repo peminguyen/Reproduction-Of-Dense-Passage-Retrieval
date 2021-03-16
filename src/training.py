@@ -28,6 +28,9 @@ def main():
     parser.add_argument("--model", help="DISTILBERT or BERT", default="BERT")
     parser.add_argument("--top_k", help="for the hard negative sampling ablation", default=1)
     parser.add_argument("--seed", help="init seed", default=12345)
+    # we added the default value of this to set_epoch() when we trained. I don't
+    # think it matters from a correctness standpoint, but that might be why you
+    # get slightly different results
     # parser.add_argument("--shuffle_seed", help="shuffle seed", default=1179493354)
     args = parser.parse_args()
 

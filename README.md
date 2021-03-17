@@ -96,7 +96,12 @@ Note that there is no data pre-processing command.
 
 # Experimental Results
 
-TODO
+|| Top-k = 20 | Top-k = 100 |
+|-----| --- | ----------- |
+|Dev.| 58.86% | 69.67% |
+|Test| 60.48% | 71.09% |
+
+TODO: Dropbox links for bert and distilbert checkpoints
 
 ### Useful links/credits
 

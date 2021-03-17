@@ -4,7 +4,7 @@ This is a project that attempts to reproduce and verify the main claims of ["Den
 
 # Dependencies
 
-TODO
+All of our dependencies are listed within the `environment.yml` file and it should be usable out-of-the-box if you install the environment with `conda`. However, if you do not wish to use the environment file, the main dependencies of our code are [Huggingface Transformers](https://huggingface.co/transformers/), [PyTorch](https://pytorch.org/), [pandas](https://pandas.pydata.org/), [h5py](https://www.h5py.org/), [FAISS (CPU version is fine)](https://github.com/facebookresearch/faiss), [seaborn](https://seaborn.pydata.org/), [matplotlib](https://matplotlib.org/), and optionally [Weights and Biases](https://wandb.ai/site).
 
 # Installation and Setup
 
@@ -87,12 +87,12 @@ Note: There are some commented out portions of code in `training.py` that you ca
 
 If you're not using the shell script, once you have the data, the order of the experiment should be:
 
-1. `training.py`
-2. `generate_embeddings.py`
-3. `evaluate.py`
-4. `plot.py`
+1. `training.py`: `python training.py --b <batch size, we use 32> --e <epochs, we use 40> --v <experiment version> --train_set <path to train set json> - dev_set <path to dev set json> --world_size <number of GPUs> --model <"DISTILBERT" or "BERT">` Note that you need to have bert-base-uncased downloaded and saved in a folder that is in the same directory as this file (see above for `wget` command).
+2. `generate_embeddings.py`: `python generate_embeddings.py --b <batch size, we use 600> --wiki <path to wikipedia tsv> --qa_pair <path to question/answer pair csv> --world_size <number of GPUs> --v <experiment version> --model <"DISTILBERT" or "BERT">`
+4. `evaluate.py`: `python evaluate.py --wiki <path to wikipedia tsv> --qa_pair <path to question/answer pair csv> --world_size <number of GPUs> --v <experiment version>`
+5. `plot.py`: `python plot.py --v <experiment version>`
 
-TODO: replace above with commands (though it should be self-explanatory if you look at the argparses...)
+Note that there is no data pre-processing command.
 
 # Experimental Results
 

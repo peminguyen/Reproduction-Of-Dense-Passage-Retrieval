@@ -96,6 +96,8 @@ Note that there is no data pre-processing command.
 
 # Experimental Results
 
+The below statistics are for a DPR model trained for 40 epochs with batch size 32, evaluated on the Wikipedia subset:
+
 || Top-k = 20 | Top-k = 100 |
 |-----| --- | ----------- |
 |Dev.| 58.86% | 69.67% |

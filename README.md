@@ -103,8 +103,8 @@ The below statistics are for a DPR model trained for 40 epochs with batch size 3
 |Dev.| 58.86% | 69.67% |
 |Test| 60.48% | 71.09% |
 
-We include both the pretrained DISTILBERT and BERT models that were used to generate all presented results in the google drive link below:
-https://drive.google.com/drive/folders/11MP71YhqX3mFXfXWB76jNR1DBjOC28tU?usp=sharing 
+We provide both the pretrained DISTILBERT and BERT models that were used to generate all presented results [here](https://drive.google.com/drive/folders/11MP71YhqX3mFXfXWB76jNR1DBjOC28tU?usp=sharing).
+ 
 
 ### Useful links/credits
 
